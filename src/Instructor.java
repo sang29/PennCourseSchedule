@@ -56,13 +56,17 @@ public class Instructor implements IPerson{
      * @param cap - set the cap to this new number
      * @return
      */
-    public int changeCourseCap(int courseNo, int cap);
+    public int changeCourseCap(int courseNo, int cap) {
+        return 0;
+    }
     
     /**
      * 
      * @return 2D matrix with courseNo and studentID for request
      */
-    public int[][] permRequests();
+    public int[][] permRequests(){
+        return null;
+    }
     
     //give permission to the student for given class
     /**
@@ -74,7 +78,9 @@ public class Instructor implements IPerson{
      * given studentId is not on the request list
      * courseNo doesn't belong to the instructor
      */
-    int givePerm(int studentId, int courseNo);
+    int givePerm(int studentId, int courseNo) {
+        return 0;
+    }
     
     
 
