@@ -1,6 +1,13 @@
+import org.joda.time.Interval;
+import org.joda.time.LocalTime;
 
 public interface ICourse extends Comparable<ICourse> {
     
+    public static final int M = 0;
+    public static final int T = 1;
+    public static final int W = 2;
+    public static final int R = 3;
+    public static final int F = 4;
     
     /**
      * @return subject code, e.g. CIT
@@ -42,7 +49,23 @@ public interface ICourse extends Comparable<ICourse> {
      */
     public boolean[] days();
     
-     
+    /**
+     * @return start time
+     */
+    public LocalTime startTime(); 
+    
+    /**
+     * @return duration, in minutes
+     */
+    public int duration();
+       
+    
+    /**
+     * @return meeting time, as an Interval object
+     */
+    public Interval meetingTime();
+    
+    
     /**
      * @return maximum enrollment
      */
@@ -57,4 +80,10 @@ public interface ICourse extends Comparable<ICourse> {
      * @return true if fully enrolled, false otherwise
      */
     public boolean isFull();
+    
+    /**
+     * @param c Another course
+     * @return true if the courses have a time conflict
+     */
+    public boolean conflictsWith(ICourse c);
 }

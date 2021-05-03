@@ -1,10 +1,10 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,6 +39,7 @@ public class Registrar implements IRegistrar {
         String baseUrl = "https://catalog.upenn.edu/search/?P=";
         Map<String, Collection<ICourse>> courseDirectory = new HashMap<>();
         try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("courses.tsv"));
             for (String code : subjects.keySet()) {
                 Document subjectCatalog = Jsoup.connect(baseUrl + code).get();
                 Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
@@ -46,7 +47,8 @@ public class Registrar implements IRegistrar {
                     String courseHeading = course.getElementsByTag("h2").get(0).text();
                     int courseId = Integer.parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
                     String courseTitle = courseHeading.split("\\d{3}")[1].trim();
-                    System.out.printf("%s %d – %s\n", code, courseId, courseTitle);
+                    bw.write(cbuf);
+                    System.out.printf("%4s\t%03d\t%s\n", code, courseId, courseTitle);
                 }
             }
         } catch (IOException e) {
