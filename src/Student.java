@@ -53,9 +53,15 @@ public class Student implements IPerson{
         
     }
     
-    int addClass(int classNo);
+    int addClass(int classNo) {
+        return 0;
+    }
     
-    int dropClass(int classNo);
+    int dropClass(int classNo) {
+        return 0;
+    }
     
-    int requestPerm(int classNo);
+    int requestPerm(int classNo) {
+        return 0;
+    }
 }
