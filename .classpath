@@ -6,8 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/sangikhan/Desktop/CIT594/Eclipse/jsoup-1.13.1.jar"/>
+	<classpathentry kind="lib" path="/Users/pgaissert/Git Repositories/CIT594/HW8/PennCourseSchedule/lib/jsoup-1.13.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/Users/pgaissert/Documents/Programming/Java/Jars/joda-time-2.10.10/joda-time-2.10.10.jar"/>
+	<classpathentry kind="lib" path="/Users/pgaissert/Git Repositories/CIT594/HW8/PennCourseSchedule/lib/joda-time-2.10.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
