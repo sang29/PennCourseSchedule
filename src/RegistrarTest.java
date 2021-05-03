@@ -21,9 +21,14 @@ public class RegistrarTest {
     }
     
     @Test
-    public void testBuildCourseDirectory() {
+    public void testParseCatalog() {
         Map<String, String> subjects = reg.parseSubjects();
-        reg.buildCourseDirectory(subjects);
+//        Map
     }
-
+    
+//    @Test
+//    public void testBuildCourseDirectory() {
+//        Map<String, String> subjects = reg.parseSubjects();
+//        reg.buildCourseDirectory(subjects);
+//    }
 }
