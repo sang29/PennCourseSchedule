@@ -1,3 +1,4 @@
+import java.util.*;
 
 public interface IPerson {
     
@@ -6,9 +7,33 @@ public interface IPerson {
      */
     
     String getName();
-    void setName();
+    void setName(String name);
     int getId();
     void setId();
+    
+    /**
+     * 
+     * @return list of course objects under the current person
+     */
+    ArrayList<Course> getCourses();
+    
+    /**
+     * 
+     * @return list of past courses
+     */
+    ArrayList<Course> getPastCourses();
+    
+    /**
+     * 
+     * @param c course object to be added to the person
+     */
+    void addCourse(Course c);
+    
+    /**
+     * 
+     * @param c course object to be dropped by the person
+     */
+    void dropCourse(Course c);
     
     /**
      * Log in the user and give the user edit privilege 

@@ -14,7 +14,7 @@ public class Instructor implements IPerson{
     }
 
     @Override
-    public void setName() {
+    public void setName(String name) {
         // TODO Auto-generated method stub
         
     }
@@ -58,6 +58,10 @@ public class Instructor implements IPerson{
      */
     public int changeCourseCap(int courseNo, int cap) {
         return 0;
+    }
+    
+    void takePermRequest(Course c, IPerson student) {
+        
     }
     
     /**
