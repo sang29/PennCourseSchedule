@@ -13,7 +13,7 @@ public interface IRegistrar {
      * @param subjects  Map of course subject codes to subject names
      * @return          Map of course subject codes to Map of course IDs to course titles
      */
-    public Map<String, Map<Integer, String>> parseCatalog(Map<String, String> subjects);
+    public Map<String, Map<Integer, String>> parseCourses(Map<String, String> subjects);
     
     /**
      * @return Map of course subject codes to collection of ICourse objects

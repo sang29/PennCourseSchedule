@@ -1,16 +1,18 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,72 +44,66 @@ public class Registrar implements IRegistrar {
     }
     
     @Override
-    public Map<String, Map<Integer, String>> parseCatalog(Map<String, String> subjects) {
+    public Map<String, Map<Integer, String>> parseCourses(Map<String, String> subjects) {
         String catalogUrl = "https://catalog.upenn.edu/search/?P=";
-        Map<String, Map<Integer, String>> catalog = new HashMap<>();
+        Map<String, Map<Integer, String>> subjectToCourses = new TreeMap<>();
         try {
-            if (!Files.exists(Paths.get("courses.tsv"))) {
-                BufferedWriter bw = new BufferedWriter(new FileWriter("courses.tsv"));
-                for (String code : subjects.keySet()) {
-                    Map<Integer, String> courseMap = new HashMap<>();
-                    Document subjectCatalog = Jsoup.connect(catalogUrl + code).get();
-                    Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
-                    for (Element course : courses) {
-                        String courseHeading = course.getElementsByTag("h2").get(0).text();
-                        int courseId = Integer
-                                .parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
-                        String courseTitle = courseHeading.split("\\b(\\d{3})\\b")[1].trim();
-                        courseMap.put(courseId, courseTitle);
-                        Elements extras = course.getElementsByClass("courseblockextra");
-                        Elements prereqElements;
-                        StringBuilder prereqs = new StringBuilder();
-                        for (Element extra : extras) {
-                            if (extra.text().contains("Prerequisite")) {
-                                prereqElements = extra.getElementsByTag("a");
-                                for (Element prereqElement : prereqElements) {
-                                    prereqs.append(prereqElement.text());
-                                    prereqs.append("\t");
-                                }
-                                
-                            }
-                        }
-                        bw.write(String.format("%4s\t%03d\t%s\t%s", code, courseId, courseTitle, prereqs.toString()));
-                        bw.newLine();
-                    }
-                    catalog.put(code, courseMap);
+            for (String code : subjects.keySet()) {
+                Map<Integer, String> numberToTitle = new TreeMap<>();
+                Document subjectCatalog = Jsoup.connect(catalogUrl + code).get();
+                Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
+                for (Element course : courses) {
+                    String courseHeading = course.getElementsByTag("h2").get(0).text();
+                    int courseNumber = Integer.parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
+                    String courseTitle = courseHeading.split("\\b(\\d{3})\\b")[1].trim();
+                    numberToTitle.put(courseNumber, courseTitle);
                 }
-                bw.close();
-                return catalog;
+                subjectToCourses.put(code, numberToTitle);
             }
-            BufferedReader br = new BufferedReader(new FileReader("courses.tsv"));
-            String line;
-            String previousSubject = "XXX";
-            Map<Integer, String> courseMap = new HashMap<>();
-            while ((line = br.readLine()) != null) {                
-                String[] courseInfo = line.trim().split("\t");
-                System.out.println(courseInfo.length);
-                String subject = courseInfo[0];
-                int id = Integer.parseInt(courseInfo[1]);
-                System.out.println(subject + id);
-                String title = courseInfo[2];
-                if (!subject.equals(previousSubject)) {
-                    if (courseMap.size() != 0) {
-                        catalog.put(previousSubject, courseMap);
-                        courseMap = new HashMap<>();
-                    }
-                }
-                previousSubject = subject;
-                courseMap.put(id, title);
-            }
-            catalog.put(previousSubject, courseMap);
-            return catalog;
-            
+            return subjectToCourses;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
-
+    
+    
+    public Map<String, Map<Integer, String>> parsePrereqs(Map<String, String> subjects) {
+        String catalogUrl = "https://catalog.upenn.edu/search/?P=";
+        Map<String, Map<Integer, String>> subjectToCourses = new TreeMap<>();
+        try {
+            for (String code : subjects.keySet()) {
+                Map<Integer, String> courseToPrereqs = new TreeMap<>();
+               
+                Document subjectCatalog = Jsoup.connect(catalogUrl + code).get();
+                Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
+                
+                for (Element course : courses) {
+                    String courseHeading = course.getElementsByTag("h2").get(0).text();
+                    int courseNumber = Integer.parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
+                    Elements blocks = course.getElementsByClass("courseblockextra");
+                    Pattern p = Pattern.compile("(?<=Prerequisite[s]*: ).*$");
+                    for (Element block : blocks) {
+                        String blockText = block.text();
+                        if (blockText.contains("Prerequisite:") || blockText.contains("Prerequisites:")) {
+                            Matcher m = p.matcher(block.text());
+                            m.find();
+                            String prereqs = m.group(0);
+                            courseToPrereqs.put(courseNumber, prereqs);
+                            break;
+                        }
+                        courseToPrereqs.put(courseNumber, "");
+                    }
+                }
+                subjectToCourses.put(code, courseToPrereqs);
+            }
+            return subjectToCourses;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     @Override
     public Map<String, Map<Integer, ICourse>> buildCourseDirectory(Map<String, Map<Integer, String>> catalog) {
         Map<String, Collection<ICourse>> courseDirectory = new HashMap<>();

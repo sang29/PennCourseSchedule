@@ -1,6 +1,8 @@
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +22,22 @@ public class RegistrarTest {
         assertEquals("Computer & Information Technology", subjects.get("CIT"));        
     }
     
-//    @Test
-//    public void testParseCatalog() {
-//        Map<String, String> subjects = reg.parseSubjects();
-//        System.out.println(subjects);
-//        Map<String, Map<Integer, String>> catalog = reg.parseCatalog(subjects);
-//        
-//        
-//    }
+    @Test
+    public void testParseCoursesAndPrereqs() {
+        Map<String, String> subjects = reg.parseSubjects();
+        System.out.println(subjects);
+        System.out.println();
+        Map<String, Map<Integer, String>> courses = reg.parseCourses(subjects);
+
+//        for (Entry<String, Map<Integer, String>> subject : catalog.entrySet()) {
+//            for (Entry<Integer, String> course : subject.getValue().entrySet()) {
+//                System.out.printf("%s %d - %s\n", subject.getKey(), course.getKey(), course.getValue());
+//            }
+//        }
+        
+    }
+    
+    
     
 //    @Test
 //    public void testBuildCourseDirectory() {
