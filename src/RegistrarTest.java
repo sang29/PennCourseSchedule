@@ -17,14 +17,17 @@ public class RegistrarTest {
     public void testParseSubjects() {
         Map<String, String> subjects = reg.parseSubjects();
         assertEquals("Art & Archaeology Of The Mediterranean World", subjects.get("AAMW"));
-        assertEquals("Computer & Information Technology", subjects.get("CIT"));
+        assertEquals("Computer & Information Technology", subjects.get("CIT"));        
     }
     
-    @Test
-    public void testParseCatalog() {
-        Map<String, String> subjects = reg.parseSubjects();
-//        Map
-    }
+//    @Test
+//    public void testParseCatalog() {
+//        Map<String, String> subjects = reg.parseSubjects();
+//        System.out.println(subjects);
+//        Map<String, Map<Integer, String>> catalog = reg.parseCatalog(subjects);
+//        
+//        
+//    }
     
 //    @Test
 //    public void testBuildCourseDirectory() {

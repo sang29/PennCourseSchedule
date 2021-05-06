@@ -18,7 +18,7 @@ public interface IRegistrar {
     /**
      * @return Map of course subject codes to collection of ICourse objects
      */
-    public Map<String, Map<Integer, ICourse>> buildCourseDirectory(Map<String, String> subjects);
+    public Map<String, Map<Integer, ICourse>> buildCourseDirectory(Map<String, Map<Integer, String>> catalog);
     
     /**
      * @return Map of IDs to students

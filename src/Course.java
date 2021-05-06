@@ -14,6 +14,7 @@ public class Course implements ICourse {
     private String description;
     private IPerson instructor;
     private String type;
+    private int units;
     
     private boolean[] days;
     private LocalTime startTime;
@@ -84,6 +85,11 @@ public class Course implements ICourse {
         return this.type;
     }
 
+    @Override
+    public int units() {
+        return this.units;
+    }
+    
     @Override
     public boolean[] days() {
         boolean[] temp = new boolean[5];
