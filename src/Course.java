@@ -14,7 +14,7 @@ public class Course implements ICourse {
     private String description;
     private IPerson instructor;
     private String type;
-    private int units;
+    private double units;
     
     private boolean[] days;
     private LocalTime startTime;
@@ -71,23 +71,31 @@ public class Course implements ICourse {
     }
 
     @Override
-    public String description() {
-        return this.description;
-    }
-
-    @Override
     public IPerson instructor() {
         return this.instructor;
+    }
+    
+    public void setInstructor(String instructor) {
+        this.instructor = new Instructor();
+        this.instructor.setName(instructor);
     }
 
     @Override
     public String type() {
         return this.type;
     }
+    
+    public void setType(String type) {
+        this.type = type;
+    }
 
     @Override
-    public int units() {
+    public double units() {
         return this.units;
+    }
+    
+    public void setUnits(double units) {
+        this.units = units;
     }
     
     @Override
@@ -147,6 +155,9 @@ public class Course implements ICourse {
 
     @Override
     public int duration() {
+        if (this.meetingTime == null) {
+            return 0;
+        }
         return (int)this.meetingTime.toDuration().getStandardMinutes();
     }
     
@@ -159,6 +170,10 @@ public class Course implements ICourse {
         return this.max;
     }
 
+    public void setMax(int max) {
+        this.max = max;
+    }
+    
     @Override
     public int current() {
         return this.students.size();
@@ -185,6 +200,12 @@ public class Course implements ICourse {
     @Override
     public String toString() {
         return String.format("%s-%d-%03d %s", subject, id, section, title);
+    }
+
+    @Override
+    public String description() {
+        // TODO Auto-generated method stub
+        return null;
     }
     
 

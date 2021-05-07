@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 
 public class Instructor implements IPerson{
     private String name;
@@ -9,13 +10,12 @@ public class Instructor implements IPerson{
     
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.name;
     }
 
     @Override
     public void setName(String name) {
-        // TODO Auto-generated method stub
+        this.name = name;
         
     }
 
@@ -84,6 +84,30 @@ public class Instructor implements IPerson{
      */
     int givePerm(int studentId, int courseNo) {
         return 0;
+    }
+
+    @Override
+    public ArrayList<Course> getCourses() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ArrayList<Course> getPastCourses() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void addCourse(Course c) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void dropCourse(Course c) {
+        // TODO Auto-generated method stub
+        
     }
     
     

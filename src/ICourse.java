@@ -47,7 +47,7 @@ public interface ICourse extends Comparable<ICourse> {
     /**
      * @return course units
      */
-    public int units();
+    public double units();
     
     /**
      * @return meeting days, as boolean array of length 7

@@ -1,3 +1,9 @@
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
+
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +18,6 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.set;
 
 public class Database {
   
@@ -110,6 +112,34 @@ public class Database {
                         combine(set("permission", permission), set("prerequisites", course.getValue())));
             }
         }
+    }
+    
+    public void pushSectionsToDatabase() {
+        if (mongoClient == null) return;
+        MongoCollection<Document> collection = db.getCollection("sections_fall2021");
+        Registrar r = new Registrar();
+        Map<String, String> subjects = r.parseSubjects();
+        Collection<ICourse> sections = r.parseSections(subjects);
+        List<Document> docs = new LinkedList<>();
+        for (ICourse section : sections) {
+            int start = 0;
+            if (section.startTime() != null) {
+                start = (60 * section.startTime().getHourOfDay()) + section.startTime().getMinuteOfHour();
+            }
+            Document doc = new Document("subject", section.subject())
+                    .append("number", section.id())
+                    .append("section", section.section())
+                    .append("type", section.type())
+                    .append("instructor", section.instructor().getName())
+                    .append("days", ((Course)section).daysToString())
+                    .append("startTime", start)
+                    .append("duration", section.duration())
+                    .append("max", section.max())
+                    .append("current", 0)
+                    .append("units", section.units());
+            docs.add(doc);
+        }
+        collection.insertMany(docs);
     }
     
     /**

@@ -1,5 +1,6 @@
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,10 +26,11 @@ public class RegistrarTest {
     @Test
     public void testParseCoursesAndPrereqs() {
         Map<String, String> subjects = reg.parseSubjects();
-        System.out.println(subjects);
-        System.out.println();
-        Map<String, Map<Integer, String>> courses = reg.parseCourses(subjects);
-
+//        Map<String, Map<Integer, String>> courses = reg.parseCourses(subjects);
+        Collection<ICourse> sections = ((Registrar)reg).parseSections(subjects);
+        for (ICourse section : sections) {
+            System.out.println(section);
+        }
 //        for (Entry<String, Map<Integer, String>> subject : catalog.entrySet()) {
 //            for (Entry<Integer, String> course : subject.getValue().entrySet()) {
 //                System.out.printf("%s %d - %s\n", subject.getKey(), course.getKey(), course.getValue());
