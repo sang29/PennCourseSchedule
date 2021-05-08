@@ -2,6 +2,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
+import com.mongodb.client.model.Projections;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -9,10 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.ConnectionString;
+import com.mongodb.DBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -141,6 +147,98 @@ public class Database {
         }
         collection.insertMany(docs);
     }
+    
+    public void pushStudentToDatabase(String firstName, String lastName, String program, String id, String password) {
+        // If a client hasn't been opened, do nothing 
+        if (mongoClient == null) return;
+        // Get the "subjects" collection from the database
+        MongoCollection<Document> collection = db.getCollection("students");
+        
+        Document d = collection.find(eq("id", id)).first();
+        if (d != null) {
+            System.out.println("id already exists, please try another one.");
+            return;
+        }
+        
+        List<Integer> courses = new ArrayList<>();
+        List<Integer> pastCourses = new ArrayList<>();
+        
+        Document doc = new Document("firstName", firstName)
+                .append("lastName", lastName)
+                .append("program", program)
+                .append("id", id)
+                .append("password", password)
+                .append("courses", courses)
+                .append("pastCourses", pastCourses);
+        
+        collection.insertOne(doc);
+    }
+    
+    public void pushCourseToStudent(String id, String subject, int number) {
+        if (mongoClient == null) return;
+        
+        MongoCollection<Document> courses = db.getCollection("courses");
+        MongoCollection<Document> students = db.getCollection("students");
+        
+        //find the courseID
+        Document c = courses.find(and(eq("subject", subject), eq("number", number))).first();
+        
+        if (c == null) {
+            System.out.println("Requested course is not offered in current semester.");
+            return;
+        }
+        
+        String courseNo = subject + " " + Integer.toString(number);
+       
+        //check the pre-req for the class
+        //check class time conflict
+        
+        //check duplicate course in the student courses
+        Document s = students.find(eq("id", id)).first();
+        
+        if (s == null) {
+            System.out.println("Requested student ID doesn't exist.");
+            return;
+        }
+        ArrayList<String> currentCourses = (ArrayList<String>) s.get("courses");
+        ArrayList<String> pastCourses = (ArrayList<String>) s.get("pastCourses");
+        
+        if (currentCourses.size() >= 5) {
+            System.out.println("You cannot take more than five courses per semester.");
+            return;
+        }
+        
+        if (currentCourses.contains(courseNo)) {
+            System.out.println("Requested course was already added to student schedule.");
+            return;
+        }
+        
+        if (pastCourses.contains(courseNo)) {
+            System.out.println("Requested course is already taken previously.");
+            return;
+        }
+        
+        //find the student and add course ID to its course collection
+        students.updateOne(eq("id", id), 
+                new Document().append(
+                        "$push",
+                        new Document("courses", courseNo)
+                    )
+                );
+    }
+    
+    public void pushPastCourseToStudent(String id, String subject, int number) {
+        //same syntax as pushCourseToStudent
+        return;
+    }
+    
+    public String getPrereq(String subject, int number) {
+        MongoCollection<Document> courses = db.getCollection("courses");
+        Document c = courses.find(and(eq("subject", subject), eq("number", number))).first();
+        String prereqStr = (String) c.get("prerequisites");
+        return prereqStr;
+    }
+    
     
     /**
      * Gets all subjects from the database and prints them
