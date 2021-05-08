@@ -22,6 +22,7 @@ public class Course implements ICourse {
     
     
     private int max;
+    private int current;
     private Collection<IPerson> students;
     
     
@@ -33,6 +34,12 @@ public class Course implements ICourse {
         this.days = new boolean[5];
     }
     
+    public Course(String subject, int id) {
+        this.subject = subject;
+        this.id = id;
+        this.days = new boolean[5];
+    }
+        
     @Override
     public int compareTo(ICourse o) {
         int subjComp = this.subject.compareTo(o.subject());
@@ -186,7 +193,14 @@ public class Course implements ICourse {
     
     @Override
     public int current() {
+        if (students == null) {
+            return this.current;
+        }
         return this.students.size();
+    }
+    
+    public void setCurrent(int current) {
+        this.current = current;
     }
 
     @Override

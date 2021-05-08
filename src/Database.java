@@ -2,7 +2,15 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.combine;
 import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Aggregates.group;
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Aggregates.sort;
+import static com.mongodb.client.model.Aggregates.lookup;
+import static com.mongodb.client.model.Aggregates.project;
+import static com.mongodb.client.model.Accumulators.first;
+import static com.mongodb.client.model.Projections.fields;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,11 +21,15 @@ import java.util.regex.Pattern;
 import org.bson.Document;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Sorts;
 
 public class Database {
 
@@ -179,7 +191,51 @@ public class Database {
                     doc.get("title"));
         }
     }
-
+    
+    public List<ICourse> findCoursesBySubject(String subject) {
+        List<ICourse> courses = new LinkedList<>();
+        MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
+        MongoCollection<Document> coursesCollection = db.getCollection("courses");
+        AggregateIterable<Document> docs = sectionsCollection.aggregate(Arrays.asList(
+                match(eq("subject", subject)),
+                group("$number", first("subject", "$subject"), first("number", "$number")),
+                sort(Sorts.ascending("number"))
+                ));
+        for (Document doc : docs) {
+            Integer number = doc.getInteger("number");
+            Course c = new Course(subject, number);
+            String title = coursesCollection.find(and(eq("subject", subject), 
+                    eq("number", number))).first().getString("title");
+            c.setTitle(title);
+            courses.add(c);
+        }
+        return courses;
+    }
+    
+    public List<ICourse> findSectionsByCourseAndType(String subject, int number, String type) {
+        List<ICourse> sections = new LinkedList<>();
+        MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
+        MongoCollection<Document> coursesCollection = db.getCollection("courses");
+        FindIterable<Document> docs = sectionsCollection.find(and(eq("subject", subject), eq("number", number), eq("type", type)));
+        for (Document doc : docs) {
+            Course c = new Course(doc.getString("subject"), doc.getInteger("number"), doc.getInteger("section"));
+            c.setType(doc.getString("type"));
+            c.setInstructor(doc.getString("instructor"));
+            c.setDays(doc.getString("days"));
+            int startTime = doc.getInteger("startTime");
+            c.setStartTime(startTime / 60, startTime % 60);
+            c.setDuration(doc.getInteger("duration"));
+            c.setMax(doc.getInteger("max"));
+            c.setCurrent(doc.getInteger("current"));
+            c.setUnits(doc.getDouble("units"));
+            String title = coursesCollection.find(and(eq("subject", doc.getString("subject")), 
+                    eq("number", doc.getInteger("number")))).first().getString("title");
+            c.setTitle(title);
+            sections.add(c);
+        }
+        return sections;
+    }
+        
     public static void main(String[] args) {
         Database m = new Database();
         m.openClient();
