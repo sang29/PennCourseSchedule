@@ -47,6 +47,16 @@ public class Course implements ICourse {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o instanceof Course) {
+            return this.subject.equals(((Course)o).subject())
+                    && this.id == ((Course)o).id()
+                    && this.section == ((Course)o).section();
+        }
+        return false;
+    }
+    
+    @Override
     public String subject() {
         return this.subject;
     }

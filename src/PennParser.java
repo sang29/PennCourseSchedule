@@ -111,7 +111,7 @@ public class PennParser implements IPennParser {
                 if (code.equals("BENF")) code = "BENFG";
                 String timeTableUrl = "https://www.registrar.upenn.edu/timetable/"
                         + code.toLowerCase() + ".html";
-                System.out.println(timeTableUrl);
+//                System.out.println(timeTableUrl);
                 Document timeTable = Jsoup.connect(timeTableUrl).get();
                 code = subject.getKey();
                 Elements elements = timeTable.getElementsByTag("pre").get(0).getElementsByTag("p");
@@ -127,7 +127,7 @@ public class PennParser implements IPennParser {
                     do {
                         line = s.nextLine();
                     } while (line.isBlank());
-                    System.out.println(line);
+//                    System.out.println(line);
                     if (line.substring(0, code.length()).equals(code)) {
                         Pattern p = Pattern.compile("(?<=" + code + "\\s*-)[0-9]{3}");
                         Matcher m = p.matcher(line);
@@ -139,7 +139,7 @@ public class PennParser implements IPennParser {
                         double units = Double.parseDouble(m.group(0));
                         while (s.hasNextLine() && !((line = s.nextLine()).isBlank())) {
                             if (isNumeric(line.substring(1, 4))) {
-                                Course c = parseSectionHelper(line, code, courseNumber, s);
+                                Course c = parseSectionsHelper(line, code, courseNumber, s);
                                 if (c.type().equals("Lecture")) {
                                     c.setUnits(units);
                                 } else {
@@ -157,11 +157,21 @@ public class PennParser implements IPennParser {
         return sections;
     }
 
-    public Course parseSectionHelper(String str, String code, int courseNumber, Scanner scnr) {
+    //---------------------------------------------------------------------------------------------
+    
+    /**
+     * 
+     * @param str           String containing section info from the UPenn time table
+     * @param code          Subject code, e.g. "CIT"
+     * @param courseNumber  Course number, e.g. 594
+     * @param scnr          Scanner object 
+     * @return              Course object for a distinct section
+     */
+    public Course parseSectionsHelper(String str, String code, int courseNumber, Scanner scnr) {
         Pattern p;
         Matcher m;
         String[] info = str.trim().split("\\s+");
-        System.out.println(Arrays.toString(info));
+//        System.out.println(Arrays.toString(info));
         int sectionNumber = Integer.parseInt(info[0]);
         Course c = new Course(code, courseNumber, sectionNumber);
         String instructor = "";
@@ -223,6 +233,8 @@ public class PennParser implements IPennParser {
                 return "Studio";
             case "ONL":
                 return "Online Course";
+            case "SRT":
+                return "Senior Thesis"; 
             default:
                 return "???";
         }
@@ -268,8 +280,7 @@ public class PennParser implements IPennParser {
         }
         c.setStartTime(startHour, startMinute);
         int duration = ((60 * endHour) + endMinute) - ((60 * startHour) + startMinute);
-        System.out.printf("start: %02d:%02d-%02d:%02d\n", startHour, startMinute, endHour,
-                endMinute);
+//        System.out.printf("start: %02d:%02d-%02d:%02d\n", startHour, startMinute, endHour, endMinute);
         c.setDuration(duration);
     }
 
@@ -285,110 +296,103 @@ public class PennParser implements IPennParser {
         return true;
     }
 
-    public static void main(String[] args) {
-        PennParser parser = new PennParser();
-//      Scanner s = new Scanner("     MAX: 70                ");
-//      Course c = (Course) r.parseSectionHelper(" 001 LEC MWF 10:15-11:15AM           GREENBERG C",
-//              "CIS", 105, s);
-//      System.out.println(c);
-//      System.out.println(c.daysToString());
-//      System.out.println(c.duration());
-
-        String str = "CIS -105  COMP DATA EXPLORATION             1 CU\n" + " GROUP 1 SECTIONS\n"
-                + "     REGISTRATION REQUIRED FOR LEC, REC\n"
-                + "     FROM WITHIN THIS GROUP OF SECTIONS\n" + "     FORMAL REASONING COURSE\n"
-                + "     FORMAL REASONING & ANALYSIS\n"
-                + " 001 LEC MWF 10:15-11:15AM           GREENBERG C\n"
-                + "     MAX: 70                \n"
-                + "          RECITATION                        0 CU\n"
-                + " 201 REC M 3:30-5PM                  GREENBERG C\n"
-                + "     MAX: 35                \n"
-                + " 202 REC M 5:15-6:45PM               GREENBERG C\n"
-                + "     MAX: 35                \n"
-                + "          COMP DATA EXPLORATION             1 CU\n" + " GROUP 2 SECTIONS\n"
-                + "     REGISTRATION REQUIRED FOR LEC, REC\n"
-                + "     FROM WITHIN THIS GROUP OF SECTIONS\n" + "     BENJAMIN FRANKLIN SEMINARS\n"
-                + "     FORMAL REASONING COURSE\n" + "     FORMAL REASONING & ANALYSIS\n"
-                + " 002 LEC MWF 1:45-2:45PM           BHUSNURMATH A\n"
-                + "     MAX: 25                \n"
-                + "          RECITATION                        0 CU\n"
-                + " 205 REC T 5:15-6:45PM             BHUSNURMATH A\n"
-                + "     MAX: 25                \n" + "\n"
-                + "CIS -110  INTRO TO COMP PROG                1 CU\n"
-                + "     REGISTRATION REQUIRED FOR LEC, REC\n" + "     FORMAL REASONING COURSE\n"
-                + " 001 LEC MWF 12-1PM                   FOUH/SMITH\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 175               \n"
-                + " 002 LEC MWF 1:45-2:45PM              FOUH/SMITH\n"
-                + "     MAX: 175               \n"
-                + "          RECITATION                        0 CU\n"
-                + "     FORMAL REASONING COURSE\n"
-                + " 201 REC M 3:30-5:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 202 REC M 5:15-7:15PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 203 REC M 7-9PM                           STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 204 REC T 12-2PM                          STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 205 REC T 1:45-3:45PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 206 REC T 3:30-5:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 207 REC T 5:15-7:15PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 208 REC M 1:45-2:45PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 209 REC M 1:45-2:45PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 210 REC M 3:30-4:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 211 REC M 5:15-6:15PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 212 REC M 7-8PM                           STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 213 REC M 8:30-9:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 214 REC T 10:15-11:15AM                   STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 215 REC T 12-1PM                          STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 216 REC T 3:30-4:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 217 REC T 1:45-2:45PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 218 REC T 3:30-4:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 219 REC T 5:15-6:15PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 220 REC T 7-8PM                           STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 221 REC T 8:30-9:30PM                     STAFF\n"
-                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
-                + " 222 REC T 7-9PM                           STAFF\n"
-                + "     MAX: 20                \n" + " ";
-
-        Scanner s = new Scanner(str);
-        String code = "CIS";
-        while (s.hasNextLine()) {
-            String line = s.nextLine();
-            if (line.substring(0, code.length()).equals(code)) {
-                Pattern p = Pattern.compile("(?<=" + code + " -)[0-9]{3}");
-                Matcher m = p.matcher(line);
-                m.find();
-                int courseNumber = Integer.parseInt(m.group(0));
-                p = Pattern.compile("([0-9]\\.)?[0-9](?= CU)");
-                m = p.matcher(line);
-                m.find();
-                while (s.hasNextLine() && !(line = s.nextLine()).isBlank()) {
-                    if (isNumeric(line.substring(1, 4))) {
-                        ICourse c = parser.parseSectionHelper(line, code, courseNumber, s);
-                        System.out.println(c);
-                        System.out.println(c.instructor().getName());
-                        System.out.println(c.max());
-                    }
-                }
-            }
-        }
-
-    }
+//    public static void main(String[] args) {
+//        PennParser parser = new PennParser();
+//        String str = "CIS -105  COMP DATA EXPLORATION             1 CU\n" + " GROUP 1 SECTIONS\n"
+//                + "     REGISTRATION REQUIRED FOR LEC, REC\n"
+//                + "     FROM WITHIN THIS GROUP OF SECTIONS\n" + "     FORMAL REASONING COURSE\n"
+//                + "     FORMAL REASONING & ANALYSIS\n"
+//                + " 001 LEC MWF 10:15-11:15AM           GREENBERG C\n"
+//                + "     MAX: 70                \n"
+//                + "          RECITATION                        0 CU\n"
+//                + " 201 REC M 3:30-5PM                  GREENBERG C\n"
+//                + "     MAX: 35                \n"
+//                + " 202 REC M 5:15-6:45PM               GREENBERG C\n"
+//                + "     MAX: 35                \n"
+//                + "          COMP DATA EXPLORATION             1 CU\n" + " GROUP 2 SECTIONS\n"
+//                + "     REGISTRATION REQUIRED FOR LEC, REC\n"
+//                + "     FROM WITHIN THIS GROUP OF SECTIONS\n" + "     BENJAMIN FRANKLIN SEMINARS\n"
+//                + "     FORMAL REASONING COURSE\n" + "     FORMAL REASONING & ANALYSIS\n"
+//                + " 002 LEC MWF 1:45-2:45PM           BHUSNURMATH A\n"
+//                + "     MAX: 25                \n"
+//                + "          RECITATION                        0 CU\n"
+//                + " 205 REC T 5:15-6:45PM             BHUSNURMATH A\n"
+//                + "     MAX: 25                \n" + "\n"
+//                + "CIS -110  INTRO TO COMP PROG                1 CU\n"
+//                + "     REGISTRATION REQUIRED FOR LEC, REC\n" + "     FORMAL REASONING COURSE\n"
+//                + " 001 LEC MWF 12-1PM                   FOUH/SMITH\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 175               \n"
+//                + " 002 LEC MWF 1:45-2:45PM              FOUH/SMITH\n"
+//                + "     MAX: 175               \n"
+//                + "          RECITATION                        0 CU\n"
+//                + "     FORMAL REASONING COURSE\n"
+//                + " 201 REC M 3:30-5:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 202 REC M 5:15-7:15PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 203 REC M 7-9PM                           STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 204 REC T 12-2PM                          STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 205 REC T 1:45-3:45PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 206 REC T 3:30-5:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 207 REC T 5:15-7:15PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 208 REC M 1:45-2:45PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 209 REC M 1:45-2:45PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 210 REC M 3:30-4:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 211 REC M 5:15-6:15PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 212 REC M 7-8PM                           STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 213 REC M 8:30-9:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 214 REC T 10:15-11:15AM                   STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 215 REC T 12-1PM                          STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 216 REC T 3:30-4:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 217 REC T 1:45-2:45PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 218 REC T 3:30-4:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 219 REC T 5:15-6:15PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 220 REC T 7-8PM                           STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 221 REC T 8:30-9:30PM                     STAFF\n"
+//                + "     FORMAL REASONING COURSE\n" + "     MAX: 20                \n"
+//                + " 222 REC T 7-9PM                           STAFF\n"
+//                + "     MAX: 20                \n" + " ";
+//
+//        Scanner s = new Scanner(str);
+//        String code = "CIS";
+//        while (s.hasNextLine()) {
+//            String line = s.nextLine();
+//            if (line.substring(0, code.length()).equals(code)) {
+//                Pattern p = Pattern.compile("(?<=" + code + " -)[0-9]{3}");
+//                Matcher m = p.matcher(line);
+//                m.find();
+//                int courseNumber = Integer.parseInt(m.group(0));
+//                p = Pattern.compile("([0-9]\\.)?[0-9](?= CU)");
+//                m = p.matcher(line);
+//                m.find();
+//                while (s.hasNextLine() && !(line = s.nextLine()).isBlank()) {
+//                    if (isNumeric(line.substring(1, 4))) {
+//                        ICourse c = parser.parseSectionsHelper(line, code, courseNumber, s);
+//                        System.out.println(c);
+//                        System.out.println(c.instructor().getName());
+//                        System.out.println(c.max());
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 }
