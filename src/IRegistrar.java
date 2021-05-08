@@ -4,21 +4,9 @@ import java.util.Map;
 public interface IRegistrar {
 
     /**
-     * @return Map of course subject codes to subject names,
-     *         e.g. (CIT, Computer and Information Technology)
-     */
-    public Map<String, String> parseSubjects();
-    
-    /**
-     * @param subjects  Map of course subject codes to subject names
-     * @return          Map of course subject codes to Map of course IDs to course titles
-     */
-    public Map<String, Map<Integer, String>> parseCourses(Map<String, String> subjects);
-    
-    /**
      * @return Map of course subject codes to collection of ICourse objects
      */
-    public Map<String, Map<Integer, ICourse>> buildCourseDirectory(Map<String, Map<Integer, String>> catalog);
+    public Map<String, Map<Integer, ICourse>> buildCourseDirectory();
     
     /**
      * @return Map of IDs to students

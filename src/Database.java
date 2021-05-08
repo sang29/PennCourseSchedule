@@ -20,18 +20,17 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 public class Database {
-  
+
     ConnectionString uri;
     MongoClient mongoClient;
     MongoDatabase db;
-    
+
     public Database() {
         // This string contains credentials for connecting to the MongoDB Atlas cluster
         uri = new ConnectionString(
-                "mongodb+srv://registrar:IeNHciZmmRfrYyG5@cit594-penn-registrar.3gicr.mongodb.net/registrar?retryWrites=true&w=majority"
-                );
+                "mongodb+srv://registrar:IeNHciZmmRfrYyG5@cit594-penn-registrar.3gicr.mongodb.net/registrar?retryWrites=true&w=majority");
     }
-    
+
     /**
      * Opens a client for connecting to the "registrar" database in the cluster
      */
@@ -51,23 +50,25 @@ public class Database {
             mongoClient = null;
         }
     }
-        
+
     /* DON'T CALL THIS!!! IT WILL ADD DUPLICATES!! */
     public void pushSubjectsToDatabase() {
-        // If a client hasn't been opened, do nothing 
+        // If a client hasn't been opened, do nothing
         if (mongoClient == null) return;
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("subjects");
-        // Create a Registrar object
-        Registrar r = new Registrar();
+        // Create a PennParser object
+        PennParser p = new PennParser();
         // Get the subject codes and names from the UPenn catalog
-        Map<String, String> subjects = r.parseSubjects();
+        Map<String, String> subjects = p.parseSubjects();
         // Create an empty list for holding Documents (BSON, not Jsoup)
         List<Document> docs = new LinkedList<>();
         // For each subject's code-name pair
         for (Entry<String, String> subject : subjects.entrySet()) {
-            // Create a new Document, e.g. { code: "CIT", name: "Computer & Information Technology" } 
-            Document doc = new Document("code", subject.getKey()).append("name", subject.getValue());
+            // Create a new Document, e.g. { code: "CIT", name: "Computer & Information Technology"
+            // }
+            Document doc = new Document("code", subject.getKey()).append("name",
+                    subject.getValue());
             // Add the Document to the list
             docs.add(doc);
         }
@@ -77,71 +78,71 @@ public class Database {
 
     /* DON'T CALL THIS!!! IT WILL ADD DUPLICATES!! */
     public void pushCoursesToDatabase() {
-        // If a client hasn't been opened, do nothing 
+        // If a client hasn't been opened, do nothing
         if (mongoClient == null) return;
         MongoCollection<Document> collection = db.getCollection("courses");
-        Registrar r = new Registrar();
-        Map<String, String> subjects = r.parseSubjects();
-        Map<String, Map<Integer, String>> catalog = r.parseCourses(subjects);
+        // Create a PennParser object
+        PennParser p = new PennParser();
+        Map<String, String> subjects = p.parseSubjects();
+        Map<String, Map<Integer, String>> catalog = p.parseCourses(subjects);
         List<Document> docs = new LinkedList<>();
         for (Entry<String, Map<Integer, String>> subject : catalog.entrySet()) {
             for (Entry<Integer, String> course : subject.getValue().entrySet()) {
                 Document doc = new Document("subject", subject.getKey())
-                        .append("number", course.getKey())
-                        .append("title", course.getValue());
+                        .append("number", course.getKey()).append("title", course.getValue());
                 docs.add(doc);
             }
         }
         // Push the documents to the "subjects" collection
         collection.insertMany(docs);
     }
-    
-    
+
     public void pushPrereqsToDatabase() {
-        // If a client hasn't been opened, do nothing 
+        // If a client hasn't been opened, do nothing
         if (mongoClient == null) return;
         MongoCollection<Document> collection = db.getCollection("courses");
-        Registrar r = new Registrar();
-        Map<String, String> subjects = r.parseSubjects();
-        Map<String, Map<Integer, String>> prereqMap = r.parsePrereqs(subjects);
+        // Create a PennParser object
+        PennParser p = new PennParser();
+        Map<String, String> subjects = p.parseSubjects();
+        Map<String, Map<Integer, String>> prereqMap = p.parsePrereqs(subjects);
         for (Entry<String, Map<Integer, String>> subject : prereqMap.entrySet()) {
             for (Entry<Integer, String> course : subject.getValue().entrySet()) {
-                boolean permission = Pattern.compile(Pattern.quote("permission"), Pattern.CASE_INSENSITIVE)
+                boolean permission = Pattern
+                        .compile(Pattern.quote("permission"), Pattern.CASE_INSENSITIVE)
                         .matcher(course.getValue()).find();
-                collection.updateOne(and(eq("subject", subject.getKey()), eq("number", course.getKey())), 
-                        combine(set("permission", permission), set("prerequisites", course.getValue())));
+                collection.updateOne(
+                        and(eq("subject", subject.getKey()), eq("number", course.getKey())),
+                        combine(set("permission", permission),
+                                set("prerequisites", course.getValue())));
             }
         }
     }
-    
+
     public void pushSectionsToDatabase() {
         if (mongoClient == null) return;
         MongoCollection<Document> collection = db.getCollection("sections_fall2021");
-        Registrar r = new Registrar();
-        Map<String, String> subjects = r.parseSubjects();
-        Collection<ICourse> sections = r.parseSections(subjects);
+        // Create a PennParser object
+        PennParser p = new PennParser();
+        Map<String, String> subjects = p.parseSubjects();
+        Collection<ICourse> sections = p.parseSections(subjects);
         List<Document> docs = new LinkedList<>();
         for (ICourse section : sections) {
             int start = 0;
             if (section.startTime() != null) {
-                start = (60 * section.startTime().getHourOfDay()) + section.startTime().getMinuteOfHour();
+                start = (60 * section.startTime().getHourOfDay())
+                        + section.startTime().getMinuteOfHour();
             }
-            Document doc = new Document("subject", section.subject())
-                    .append("number", section.id())
-                    .append("section", section.section())
-                    .append("type", section.type())
+            Document doc = new Document("subject", section.subject()).append("number", section.id())
+                    .append("section", section.section()).append("type", section.type())
                     .append("instructor", section.instructor().getName())
-                    .append("days", ((Course)section).daysToString())
-                    .append("startTime", start)
-                    .append("duration", section.duration())
-                    .append("max", section.max())
-                    .append("current", 0)
-                    .append("units", section.units());
+                    .append("days", ((Course) section).daysToString()).append("startTime", start)
+                    .append("duration", section.duration()).append("max", section.max())
+                    .append("current", 0).append("units", section.units());
             docs.add(doc);
         }
         collection.insertMany(docs);
     }
-    
+
     /**
      * Gets all subjects from the database and prints them
      */
@@ -159,12 +160,12 @@ public class Database {
             System.out.printf("%s\t%s\n", doc.get("code"), doc.get("name"));
         }
     }
-    
+
     /**
      * Gets all courses from the database and prints them
      */
     public void printAllCourses() {
-     // If a client hasn't been opened, do nothing
+        // If a client hasn't been opened, do nothing
         if (mongoClient == null) return;
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("courses");
@@ -174,17 +175,16 @@ public class Database {
         // For each document
         for (Document doc : docs) {
             // Print out the course
-            System.out.printf("%4s %03d - %s\n", doc.get("subject"), doc.get("number"), doc.get("title"));
+            System.out.printf("%4s %03d - %s\n", doc.get("subject"), doc.get("number"),
+                    doc.get("title"));
         }
     }
-    
-    
+
     public static void main(String[] args) {
         Database m = new Database();
         m.openClient();
         m.printAllCourses();
         m.closeClient();
-
     }
 
 }
