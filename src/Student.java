@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Student implements IPerson{
     private String name;
@@ -39,6 +41,90 @@ public class Student implements IPerson{
         //create IPerson instructor field in a class so that we can send the request to the instructor.
         courses.add(c);
         
+    }
+    
+public boolean checkPrereq(String prereqStr, ArrayList<String> pastCourses) {
+        
+        boolean curBool = true;
+        int conj = -1;//initialized as -1, 0 = AND, 1 = OR
+        
+        //https://stackoverflow.com/questions/2118261/parse-boolean-arithmetic-including-parentheses-with-regex
+        //https://stackoverflow.com/questions/6020384/create-array-of-regex-matches/46859130
+        
+        if (prereqStr == null) {
+            //no prereq
+            return true;
+        } else {
+//            String[] matches = match("prereqStr", "\\((\\w+)\\s+(and|or)\\s+(\\w)\\)|(\\w+)" );
+            //"\\((\\w+)\\s+(and|or)\\s+(\\w)\\)|(\\w+)"
+            //"\\([^\\)]+\\)"
+            
+            ArrayList<String> allMatches = new ArrayList<String>();
+            Matcher m = Pattern.compile("\\([^\\)]+\\)|(AND|OR)|(\\w+)")
+                .matcher(prereqStr);
+            while (m.find()) {
+              allMatches.add(m.group());
+            }
+            
+            int i = 0;
+            while (i < allMatches.size()) {
+                boolean localBool;
+                
+                String s = allMatches.get(i);
+                //parse again if it's within parenthesis
+                if (s.charAt(0) == '(') {
+                    if (s.charAt(s.length()-1) == ')') {
+                        //parse again
+                        s = s.substring(1, s.length());
+                        localBool = checkPrereq(s, pastCourses);
+                    } else {
+                        //return error since it was not properly closed
+                        System.out.println("Prerequisite has unmatching parenthesis");
+                        return false;
+                    }
+                }
+                else {
+                    //check if this course is in
+                    i++;
+                    String num = allMatches.get(i);
+                    String courseNo = s + " " + num;
+                    localBool = pastCourses.contains(courseNo);
+                    System.out.printf("i: %d", i);
+                    System.out.println(localBool);
+                }
+                
+                if (conj == -1) {
+                    //start of the loop
+                    curBool = localBool;
+                } else if (conj == 0) {
+                    //AND
+                    curBool = curBool && localBool;
+                } else {
+                    //OR
+                    curBool = curBool || localBool;
+                }
+                
+                if (i == allMatches.size() -1) {
+                    //reached the end of parsed array
+                    return curBool;
+                }
+                
+                i++;
+                String bool = allMatches.get(i);
+                
+                if (bool.equals("AND") || bool.equals("and")) {
+                    conj = 0;
+                } else if (bool.equals("OR") || bool.equals("or")) {
+                    conj = 1;
+                } else {
+                    //error for boolean
+                    System.out.printf("Boolean is not in the right format at i: %d\n", i);
+                }
+                i++;
+            }
+            return curBool;
+        }
+
     }
     
     
@@ -100,6 +186,25 @@ public class Student implements IPerson{
     int requestPerm(int classNo) {
         return 0;
     }
+    
+    public static void main(String[] args) {
+        Database m = new Database();
+        m.openClient();
+        m.printAllCourses();
+        m.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik59x", "samplePassword!@#$");
+        m.pushStudentToDatabase("Philipp", "Gaissert", "CIT", "philipp59x", "samplePassword!@#$");
+        m.pushCourseToStudent("sangik59x", "CIT", 590);
+        m.pushPastCourseToStudent("sangik59x", "CIT", 590);
+        ArrayList<String> pastCourses = new ArrayList<String>();
+        String prereqStr = "ECON 101 AND ECON 103 AND MATH 104 AND (MATH 114 OR MATH 115)";
+        System.out.println(m.checkPrereq(prereqStr, pastCourses));
+        pastCourses.add("ECON 101");
+        pastCourses.add("ECON 103");
+        pastCourses.add("MATH 104");
+        pastCourses.add("MATH 114");
+        System.out.println(m.checkPrereq(prereqStr, pastCourses));
+        m.closeClient();
 
+    }
     
 }
