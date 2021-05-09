@@ -66,6 +66,9 @@ public class PennParserTest {
         assertEquals("Operating Systems Design and Implementation", courses.get("CIS").get(548));
         assertEquals("Philadelphia, 1700-2000", courses.get("HIST").get(367));
 
+        Map<String, Map<Integer, String>> prereqs = p.parsePrereqs(subjects);
+        assertEquals("MATH 240, 150, ESE 215 218 or ESE 204, 210 or ESE 215 and CIS 240", prereqs.get("ESE").get(290));
+        
         Collection<ICourse> sections  = p.parseSections(subjects);
         assertTrue(sections.contains(new Course("CIT", 594, 501)));
         assertTrue(sections.contains(new Course("ARTH", 729, 401)));
