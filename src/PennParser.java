@@ -167,7 +167,7 @@ public class PennParser implements IPennParser {
      * @param scnr          Scanner object 
      * @return              Course object for a distinct section
      */
-    public Course parseSectionsHelper(String str, String code, int courseNumber, Scanner scnr) {
+    private Course parseSectionsHelper(String str, String code, int courseNumber, Scanner s) {
         Pattern p;
         Matcher m;
         String[] info = str.trim().split("\\s+");
@@ -185,7 +185,7 @@ public class PennParser implements IPennParser {
             p = Pattern.compile("[0-9APM:-]+");
             m = p.matcher(info[3]);
             m.find();
-            parseDuration(m.group(0), c);
+            parseMeetingTime(m.group(0), c);
             if (info.length > 4) {
                 instructor = info[4].toLowerCase();
             }
@@ -199,9 +199,9 @@ public class PennParser implements IPennParser {
             }
         }
         c.setInstructor(instructor);
-        while (scnr.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/")))
-            str = scnr.nextLine().trim();
-        if (!scnr.hasNextLine()) return c;
+        while (s.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/")))
+            str = s.nextLine().trim();
+        if (!s.hasNextLine()) return c;
         p = Pattern.compile("(?<=MAX.*: )\\d+");
         m = p.matcher(str);
         m.find();
@@ -209,8 +209,8 @@ public class PennParser implements IPennParser {
         return c;
     }
 
-    private String parseType(String s) {
-        switch (s) {
+    private String parseType(String typeCode) {
+        switch (typeCode) {
             case "LEC":
                 return "Lecture";
             case "REC":
@@ -240,8 +240,8 @@ public class PennParser implements IPennParser {
         }
     }
 
-    private void parseDuration(String s, Course c) {
-        String[] endpoints = s.split("-");
+    private void parseMeetingTime(String meetingTime, Course section) {
+        String[] endpoints = meetingTime.split("-");
         boolean startPM = false;
         boolean endPM = false;
         if (endpoints[1].contains("PM")) {
@@ -278,18 +278,18 @@ public class PennParser implements IPennParser {
         if (startHour < 8 && (startHour + 12 < endHour)) {
             startHour += 12;
         }
-        c.setStartTime(startHour, startMinute);
+        section.setStartTime(startHour, startMinute);
         int duration = ((60 * endHour) + endMinute) - ((60 * startHour) + startMinute);
 //        System.out.printf("start: %02d:%02d-%02d:%02d\n", startHour, startMinute, endHour, endMinute);
-        c.setDuration(duration);
+        section.setDuration(duration);
     }
 
-    private static boolean isNumeric(String strNum) {
-        if (strNum == null) {
+    private static boolean isNumeric(String str) {
+        if (str == null) {
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            double d = Double.parseDouble(str);
         } catch (NumberFormatException e) {
             return false;
         }
