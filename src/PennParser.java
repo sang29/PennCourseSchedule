@@ -240,47 +240,60 @@ public class PennParser implements IPennParser {
         }
     }
 
-    private void parseMeetingTime(String meetingTime, Course section) {
+    public void parseMeetingTime(String meetingTime, Course section) {
+        int startHour, startMinute, endHour, endMinute;
+        // Split the start and end time strings
         String[] endpoints = meetingTime.split("-");
-        boolean startPM = false;
-        boolean endPM = false;
-        if (endpoints[1].contains("PM")) {
-            endPM = true;
+        // Check if the end time is AM or PM
+        boolean endPM = endpoints[1].contains("PM");
+        
+        // Check if the end time contains a colon
+        if (endpoints[1].contains(":")) {
+            // If the end time contains a colon, split the hour and minutes
+            String[] end = endpoints[1].split(":");
+            // Parse the integer value of the hour
+            endHour = Integer.parseInt(end[0]);
+            // If the end time is PM and the hour is NOT 12, add 12 to the hour value  
+            if (endPM && endHour != 12) {
+                endHour += 12;
+            }
+            // Parse the integer value of the minutes
+            endMinute = Integer.parseInt(end[1].substring(0, 2));
+        } else {
+            // Parse the integer value of the hour from the substring before "AM" or "PM"
+            endHour = Integer.parseInt(endpoints[1].replace("AM", "").replace("PM", ""));
+            // If the end time is PM and the hour is NOT 12, add 12 to the hour value
+            if (endPM && endHour != 12) {
+                endHour += 12;
+            }
+            // Set the minute value to 0
+            endMinute = 0;
         }
-        int startHour;
-        int startMinute;
-        int endHour;
-        int endMinute;
+        
+        // Check if the start time contains a colon
         if (endpoints[0].contains(":")) {
+            // If the end time contains a colon, split the hour and minutes
             String[] start = endpoints[0].split(":");
+            // Parse the integer value of the hour
             startHour = Integer.parseInt(start[0]);
-            startMinute = Integer.parseInt(start[1].replace("AM", "").replace("PM", ""));
+            // Parse the integer value of the minutes
+            startMinute = Integer.parseInt(start[1].substring(0, 2));
         } else {
             String startTime = endpoints[0].replace("AM", "").replace("PM", "");
             startHour = Integer.parseInt(startTime);
             startMinute = 0;
         }
-        if (endpoints[1].contains(":")) {
-            String[] end = endpoints[1].split(":");
-            endHour = Integer.parseInt(end[0]);
-            if (endPM && endHour < 12) {
-                endHour += 12;
+        
+
+        if (endPM) {
+            if (((60 * endHour) + endMinute) - ((60 * (startHour + 12)) + startMinute) >= 45) {
+                startHour += 12;
             }
-            endMinute = Integer.parseInt(end[1].replace("AM", "").replace("PM", ""));
-        } else {
-            String endTime = endpoints[1].replace("AM", "").replace("PM", "");
-            endHour = Integer.parseInt(endTime);
-            if (endPM && endHour < 12) {
-                endHour += 12;
-            }
-            endMinute = 0;
         }
-        if (startHour < 8 && (startHour + 12 < endHour)) {
-            startHour += 12;
-        }
-        section.setStartTime(startHour, startMinute);
+        
         int duration = ((60 * endHour) + endMinute) - ((60 * startHour) + startMinute);
-//        System.out.printf("start: %02d:%02d-%02d:%02d\n", startHour, startMinute, endHour, endMinute);
+        
+        section.setStartTime(startHour, startMinute);
         section.setDuration(duration);
     }
 
