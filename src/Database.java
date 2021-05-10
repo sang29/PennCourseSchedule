@@ -57,6 +57,13 @@ public class Database {
     }
 
     /**
+     * @return name of the MongoDB database
+     */
+    public String name() {
+        return db.getName();
+    }
+
+    /**
      * Closes the client
      */
     public void closeClient() {
@@ -67,11 +74,24 @@ public class Database {
         // If a client hasn't been opened, do nothing
     }
 
-    /* DON'T CALL THIS!!! IT WILL ADD DUPLICATES!! */
+    /**
+     * @return list of names of collections in the MongoDB database
+     */
+    public List<String> collections() {
+        List<String> temp = new LinkedList<>();
+        db.listCollectionNames().into(temp);
+        return temp;
+    }
+
+    /**
+     * Parse all subject codes and names from the UPenn catalog and pushes them to the database
+     */
     public void pushSubjectsToDatabase() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
+        if (!collections().contains("subjects")) {
+            db.createCollection("subjects");
+        }
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("subjects");
         // Create a PennParser object
@@ -84,7 +104,8 @@ public class Database {
         for (Entry<String, String> subject : subjects.entrySet()) {
             // Create a new Document, e.g. {code: "CIT", name: "Computer & Information
             // Technology"}
-            Document doc = new Document("code", subject.getKey()).append("name", subject.getValue());
+            Document doc = new Document("code", subject.getKey()).append("name",
+                    subject.getValue());
             // Add the Document to the list
             docs.add(doc);
         }
@@ -92,11 +113,15 @@ public class Database {
         collection.insertMany(docs);
     }
 
-    /* DON'T CALL THIS!!! IT WILL ADD DUPLICATES!! */
+    /**
+     * Parse all courses from the UPenn catalog and pushes them to the database
+     */
     public void pushCoursesToDatabase() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
+        if (!collections().contains("courses")) {
+            db.createCollection("courses");
+        }
         MongoCollection<Document> collection = db.getCollection("courses");
         // Create a PennParser object
         PennParser p = new PennParser();
@@ -105,8 +130,8 @@ public class Database {
         List<Document> docs = new LinkedList<>();
         for (Entry<String, Map<Integer, String>> subject : catalog.entrySet()) {
             for (Entry<Integer, String> course : subject.getValue().entrySet()) {
-                Document doc = new Document("subject", subject.getKey()).append("number", course.getKey())
-                        .append("title", course.getValue());
+                Document doc = new Document("subject", subject.getKey())
+                        .append("number", course.getKey()).append("title", course.getValue());
                 docs.add(doc);
             }
         }
@@ -114,10 +139,12 @@ public class Database {
         collection.insertMany(docs);
     }
 
+    /**
+     * Parses all course prerequisites from the UPenn catalog and pushes them to the database
+     */
     public void pushPrereqsToDatabase() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
         MongoCollection<Document> collection = db.getCollection("courses");
         // Create a PennParser object
         PennParser p = new PennParser();
@@ -125,18 +152,26 @@ public class Database {
         Map<String, Map<Integer, String>> prereqMap = p.parsePrereqs(subjects);
         for (Entry<String, Map<Integer, String>> subject : prereqMap.entrySet()) {
             for (Entry<Integer, String> course : subject.getValue().entrySet()) {
-                boolean permission = Pattern.compile(Pattern.quote("permission"), Pattern.CASE_INSENSITIVE)
+                boolean permission = Pattern
+                        .compile(Pattern.quote("permission"), Pattern.CASE_INSENSITIVE)
                         .matcher(course.getValue()).find();
-                collection.updateOne(and(eq("subject", subject.getKey()), eq("number", course.getKey())),
-                        combine(set("permission", permission), set("prerequisites", course.getValue())));
+                collection.updateOne(
+                        and(eq("subject", subject.getKey()), eq("number", course.getKey())),
+                        combine(set("permission", permission),
+                                set("prerequisites", course.getValue())));
             }
         }
     }
 
+    /**
+     * Parses all sections from the UPenn time table and pushes them to the database
+     */
     public void pushSectionsToDatabase() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
+        if (!collections().contains("sections_fall2021")) {
+            db.createCollection("sections_fall2021");
+        }
         MongoCollection<Document> collection = db.getCollection("sections_fall2021");
         // Create a PennParser object
         PennParser p = new PennParser();
@@ -146,23 +181,34 @@ public class Database {
         for (ICourse section : sections) {
             int start = 0;
             if (section.startTime() != null) {
-                start = (60 * section.startTime().getHourOfDay()) + section.startTime().getMinuteOfHour();
+                start = (60 * section.startTime().getHourOfDay())
+                        + section.startTime().getMinuteOfHour();
             }
             Document doc = new Document("subject", section.subject()).append("number", section.id())
                     .append("section", section.section()).append("type", section.type())
                     .append("instructor", section.instructor().getName())
                     .append("days", ((Course) section).daysToString()).append("startTime", start)
-                    .append("duration", section.duration()).append("max", section.max()).append("current", 0)
-                    .append("units", section.units());
+                    .append("duration", section.duration()).append("max", section.max())
+                    .append("current", 0).append("units", section.units());
             docs.add(doc);
         }
         collection.insertMany(docs);
     }
+    
+    public void initializeDatabase() {
+        pushSubjectsToDatabase();
+        pushCoursesToDatabase();
+        pushPrereqsToDatabase();
+        pushSectionsToDatabase();
+    }
 
-    public void pushStudentToDatabase(String firstName, String lastName, String program, String id, String password) {
+    public void pushStudentToDatabase(String firstName, String lastName, String program, String id,
+            String password) {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
+        if (!collections().contains("students")) {
+            db.createCollection("students");
+        }
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("students");
         Document d = collection.find(eq("id", id)).first();
@@ -172,17 +218,17 @@ public class Database {
         }
         List<Document> courses = new ArrayList<>();
         List<String> pastCourses = new ArrayList<>();
-        Document doc = new Document("firstName", firstName.toUpperCase()).append("lastName", lastName.toUpperCase())
-                .append("program", program).append("id", id).append("password", password).append("courses", courses)
+        Document doc = new Document("firstName", firstName.toUpperCase())
+                .append("lastName", lastName.toUpperCase()).append("program", program)
+                .append("id", id).append("password", password).append("courses", courses)
                 .append("pastCourses", pastCourses);
         collection.insertOne(doc);
     }
 
-    public void pushInstructorToDatabase(String firstName, String lastName, String program, String id,
-            String password) {
+    public void pushInstructorToDatabase(String firstName, String lastName, String program,
+            String id, String password) {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("instructors");
 
@@ -195,16 +241,16 @@ public class Database {
         List<String> courses = new ArrayList<>(); // current courses that the instructor is teaching
         List<Document> waitlist = new ArrayList<>(); // waitlist for permission
 
-        Document doc = new Document("firstName", firstName.toUpperCase()).append("lastName", lastName.toUpperCase())
-                .append("program", program).append("id", id).append("password", password).append("courses", courses)
+        Document doc = new Document("firstName", firstName.toUpperCase())
+                .append("lastName", lastName.toUpperCase()).append("program", program)
+                .append("id", id).append("password", password).append("courses", courses)
                 .append("pastCourses", waitlist);
 
         collection.insertOne(doc);
     }
 
     public void pushCourseToStudent(String id, String subject, int number, int section) {
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
         MongoCollection<Document> studentCollection = db.getCollection("students");
         MongoCollection<Document> sectionCollection = db.getCollection("sections_fall2021");
 //        MongoCollection<Document> courses = db.getCollection("courses");
@@ -300,14 +346,17 @@ public class Database {
 //        }
 
         Document studentCourse = new Document();
-        studentCourse.append("subject", subject).append("number", number).append("section", section);
+        studentCourse.append("subject", subject).append("number", number).append("section",
+                section);
 
-        studentCollection.updateOne(eq("id", id), new Document().append("$push", new Document("courses", studentCourse)));
-        //increment current for section
-        sectionCollection.updateOne(and(eq("subject", subject), eq("number", number), eq("section", section)), 
+        studentCollection.updateOne(eq("id", id),
+                new Document().append("$push", new Document("courses", studentCourse)));
+        // increment current for section
+        sectionCollection.updateOne(
+                and(eq("subject", subject), eq("number", number), eq("section", section)),
                 new Document().append("$inc", new Document("current", 1)));
-        //add student ID
-        
+        // add student ID
+
     }
 
     public void pushPastCourseToStudent(String student_id, String subject, int number) {
@@ -315,11 +364,10 @@ public class Database {
         MongoCollection<Document> studentCollection = db.getCollection("students");
         String courseNo = subject + " " + Integer.toString(number);
 //        Document studentDoc = studentCollection.find(eq("id", student_id)).first();
-        
+
         studentCollection.updateOne(eq("id", student_id),
                 new Document().append("$push", new Document("pastCourses", courseNo)));
-        
-        
+
         return;
     }
 
@@ -341,8 +389,7 @@ public class Database {
      */
     public void printAllSubjects() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("subjects");
         // Get all documents from the collection
@@ -360,8 +407,7 @@ public class Database {
      */
     public void printAllCourses() {
         // If a client hasn't been opened, do nothing
-        if (mongoClient == null)
-            return;
+        if (mongoClient == null) return;
         // Get the "subjects" collection from the database
         MongoCollection<Document> collection = db.getCollection("courses");
         // Get all documents from the collection
@@ -370,7 +416,8 @@ public class Database {
         // For each document
         for (Document doc : docs) {
             // Print out the course
-            System.out.printf("%4s %03d - %s\n", doc.get("subject"), doc.get("number"), doc.get("title"));
+            System.out.printf("%4s %03d - %s\n", doc.get("subject"), doc.get("number"),
+                    doc.get("title"));
         }
     }
 
@@ -378,18 +425,19 @@ public class Database {
         List<ICourse> courses = new LinkedList<>();
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
-        AggregateIterable<Document> docs = sectionsCollection.aggregate(Arrays.asList(match(eq("subject", subject)),
-                group("$number", first("subject", "$subject"), first("number", "$number")),
-                sort(Sorts.ascending("number"))));
+        AggregateIterable<Document> docs = sectionsCollection
+                .aggregate(Arrays.asList(match(eq("subject", subject)),
+                        group("$number", first("subject", "$subject"), first("number", "$number")),
+                        sort(Sorts.ascending("number"))));
         for (Document doc : docs) {
             Integer number = doc.getInteger("number");
             Course c = new Course(subject, number);
-            String title = coursesCollection.find(and(eq("subject", subject), eq("number", number))).first()
-                    .getString("title");
-            if (title == null) {
-                title = "";
+            FindIterable<Document> matching = coursesCollection.find(and(eq("subject", subject), eq("number", number))); 
+            String title = "";
+            if (matching.first() != null) {
+                title = matching.first().getString("title");
             }
-            
+
             c.setTitle(title);
             courses.add(c);
         }
@@ -400,9 +448,11 @@ public class Database {
         List<ICourse> courses = new LinkedList<>();
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
-        FindIterable<Document> docs = sectionsCollection.find(and(eq("subject", subject), eq("number", number)));
+        FindIterable<Document> docs = sectionsCollection
+                .find(and(eq("subject", subject), eq("number", number)));
         for (Document doc : docs) {
-            Course c = new Course(doc.getString("subject"), doc.getInteger("number"), doc.getInteger("section"));
+            Course c = new Course(doc.getString("subject"), doc.getInteger("number"),
+                    doc.getInteger("section"));
             c.setType(doc.getString("type"));
             c.setInstructor(doc.getString("instructor"));
             c.setDays(doc.getString("days"));
@@ -412,9 +462,8 @@ public class Database {
             c.setMax(doc.getInteger("max"));
             c.setCurrent(doc.getInteger("current"));
             c.setUnits(doc.getDouble("units"));
-            String title = coursesCollection
-                    .find(and(eq("subject", doc.getString("subject")), eq("number", doc.getInteger("number")))).first()
-                    .getString("title");
+            String title = coursesCollection.find(and(eq("subject", doc.getString("subject")),
+                    eq("number", doc.getInteger("number")))).first().getString("title");
             c.setTitle(title);
             courses.add(c);
         }
@@ -428,7 +477,8 @@ public class Database {
         FindIterable<Document> docs = sectionsCollection
                 .find(and(eq("subject", subject), eq("number", number), eq("type", type)));
         for (Document doc : docs) {
-            Course c = new Course(doc.getString("subject"), doc.getInteger("number"), doc.getInteger("section"));
+            Course c = new Course(doc.getString("subject"), doc.getInteger("number"),
+                    doc.getInteger("section"));
             c.setType(doc.getString("type"));
             c.setInstructor(doc.getString("instructor"));
             c.setDays(doc.getString("days"));
@@ -438,9 +488,8 @@ public class Database {
             c.setMax(doc.getInteger("max"));
             c.setCurrent(doc.getInteger("current"));
             c.setUnits(doc.getDouble("units"));
-            String title = coursesCollection
-                    .find(and(eq("subject", doc.getString("subject")), eq("number", doc.getInteger("number")))).first()
-                    .getString("title");
+            String title = coursesCollection.find(and(eq("subject", doc.getString("subject")),
+                    eq("number", doc.getInteger("number")))).first().getString("title");
             c.setTitle(title);
             sections.add(c);
         }
@@ -452,12 +501,14 @@ public class Database {
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
         Document doc = sectionsCollection
-                .find(and(eq("subject", subject), eq("number", number), eq("section", section))).first();
+                .find(and(eq("subject", subject), eq("number", number), eq("section", section)))
+                .first();
         if (doc == null) {
             System.out.println("Requested course section does not exist. Please try another one.");
             return null;
         }
-        Course c = new Course(doc.getString("subject"), doc.getInteger("number"), doc.getInteger("section"));
+        Course c = new Course(doc.getString("subject"), doc.getInteger("number"),
+                doc.getInteger("section"));
         c.setType(doc.getString("type"));
         c.setInstructor(doc.getString("instructor"));
         c.setDays(doc.getString("days"));
@@ -467,9 +518,8 @@ public class Database {
         c.setMax(doc.getInteger("max"));
         c.setCurrent(doc.getInteger("current"));
         c.setUnits(doc.getDouble("units"));
-        String title = coursesCollection
-                .find(and(eq("subject", doc.getString("subject")), eq("number", doc.getInteger("number")))).first()
-                .getString("title");
+        String title = coursesCollection.find(and(eq("subject", doc.getString("subject")),
+                eq("number", doc.getInteger("number")))).first().getString("title");
         c.setTitle(title);
 
         return c;
@@ -477,7 +527,8 @@ public class Database {
 
     public Boolean courseNeedsPerm(String subject, int number) {
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
-        Document doc = coursesCollection.find(and(eq("subject", subject), eq("number", number))).first();
+        Document doc = coursesCollection.find(and(eq("subject", subject), eq("number", number)))
+                .first();
         return doc.getBoolean("permission");
     }
 
@@ -486,10 +537,12 @@ public class Database {
         MongoCollection<Document> instructors = db.getCollection("instructors");
 
         Document wait = new Document();
-        wait.append("student_id", student_id).append("subject", subject).append("number", number).append("section",
-                section);
+        wait.append("student_id", student_id).append("subject", subject).append("number", number)
+                .append("section", section);
 
-        Document s = sections.find(and(eq("subject", subject), eq("number", number), eq("section", section))).first();
+        Document s = sections
+                .find(and(eq("subject", subject), eq("number", number), eq("section", section)))
+                .first();
 
         if (s == null) {
             System.out.println("Requested course is not offered in current semester.");

@@ -16,6 +16,15 @@ public class DatabaseTest {
     }
 
     @Test
+    public void testDatabase() {
+        assertEquals("registrar", db.name());
+        List<String> collections = db.collections();
+        assertTrue(collections.contains("subjects"));
+        assertTrue(collections.contains("courses"));
+        assertTrue(collections.contains("sections_fall2021"));
+    }
+    
+    @Test
     public void testFindSectionsByCourseAndType() {
         List<ICourse> sections = db.findSectionsByCourseAndType("CIT", 594, "Online Course");
         assertEquals(1, sections.size());
