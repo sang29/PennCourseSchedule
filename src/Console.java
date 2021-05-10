@@ -6,16 +6,13 @@ import java.util.Scanner;
 import org.bson.Document;
 
 public class Console implements IConsole {
-//    private int currentUser;
-//    private Registrar r;
-    private IPerson p;
+    private IPerson p; //currentUser
     Database db;
-//    db.openClient();
-//    db.printAllCourses();
-//    db.closeClient();
+    Boolean isInstructor;
+
 
     Console() {
-        p = null; // initialize p as -1
+        p = null; // initialize p as null
         db = new Database(); // r needs to keep track of student id/pw
     }
 
@@ -34,28 +31,14 @@ public class Console implements IConsole {
         System.out.println("What us your password?");
         String pw = s.nextLine();
 
-        System.out.println("Are you an instructor? (Y/N)");
-        String instructorStr = s.nextLine();
-
-        Boolean isInstructor = false;
-        if (instructorStr.equals("Y")) {
-            isInstructor = true;
-        } else if (instructorStr.equals("N")) {
-            isInstructor = false;
-        } else {
-            System.out.println("Please type valid input");
-            s.close();
-            promptLogin();
-        }
-//        s.close();
-
-        if (login(id, pw, isInstructor) == -1) {
+        if (login(id, pw) == -1) {
             promptLogin();
         };
     }
 
     public void promptStudentMenu() {
-
+        Student loggedinStudent = (Student) getCurrentUser();
+        
         System.out.println("Please type the integer value for next action.");
         System.out.printf(
                 "1. View current courses \n2. View past courses \n3. Add a new course \n4. View courses by subject \n5. Request course permission \n6. Logout \n");
@@ -67,9 +50,7 @@ public class Console implements IConsole {
         if (selection < 1 || selection > 6) {
             System.out.println("Your selection is out of bound. Select again");
             promptStudentMenu();
-        }
-
-        Student loggedinStudent = (Student) getCurrentUser();
+        } 
 
         if (selection == 1) {
             loggedinStudent.printCourses();
@@ -102,33 +83,66 @@ public class Console implements IConsole {
         } else {
             logout();
         }
-//        s.close();
+    }
+    
+    public void promptInstructorMenu() {
+        Instructor loggedinInstructor = (Instructor) getCurrentUser();
+        
+        System.out.println("Please type the integer value for next action.");
+        System.out.printf(
+                "1. View current courses \n2. View waitlist \n3. Approve waitlist \n");
+
+        Scanner s = new Scanner(System.in);
+        int selection = s.nextInt();
+        s.nextLine();
+
+        if (selection < 1 || selection > 3) {
+            System.out.println("Your selection is out of bound. Select again");
+            promptInstructorMenu();
+        }
+        
+        if (selection == 1) {
+            loggedinInstructor.printCourses();
+        } else if (selection == 1) {
+            loggedinInstructor.printWaitlist();
+        } else {
+            System.out.println("Please type the subject for approval.");
+            String subject = s.nextLine();
+            System.out.println("Please type the number for approval.");
+            int number = s.nextInt();
+            System.out.println("Please type the section for approval.");
+            int section = s.nextInt();
+            System.out.println("Please type the student_id for approval.");
+            String student_id = s.nextLine();
+            db.openClient();
+            db.pushCourseToStudent(student_id, subject, number, section);
+            db.closeClient();
+        }
     }
 
     @Override
-    public int login(String id, String pw, boolean isInstructor) {
+    public int login(String id, String pw) {
         db.openClient();
-        Student s = db.findStudentById(id);
+        IPerson user = db.findStudentById(id);
 
-        if (s == null) {
-            System.out.println("Requested student ID doesn't exist. Please try again");
-            db.closeClient();
-            return -1;
+        if (user == null) {
+            user = db.findInstructorById(id);
+            if (user == null) {
+                System.out.println("Requested student ID doesn't exist. Please try again");
+                db.closeClient();
+                return -1;
+            }
+            else {
+                isInstructor = true;
+            }
+        } else {
+            isInstructor = false;
         }
-        
-        //find instructor by ID
 
-        String dbpw = s.getPassword(); // get pw from db
+        String dbpw = user.getPassword(); // get pw from db
  
         if (dbpw.equals(pw)) {
-
-            if (isInstructor) {
-                Instructor curI = new Instructor();
-                setCurrentUser(curI);
-            } else {
-                
-                setCurrentUser(s);
-            }
+            setCurrentUser(user);
             db.closeClient();
             return 0;
 
@@ -144,11 +158,6 @@ public class Console implements IConsole {
         setCurrentUser(null);
     }
 
-    @Override
-    public int currentUser() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
 
     public void printCoursesBySubject(String subject) {
         db.openClient();
@@ -232,7 +241,6 @@ public class Console implements IConsole {
             }
 
             // Now meets all the conditions for adding the course
-
             // add course for IPerson
             p.addCourse(c);
 
@@ -244,20 +252,18 @@ public class Console implements IConsole {
     }
 
     public static void main(String[] args) {
+        
         Console c = new Console();
-
         c.promptLogin();
 
         while (c.getCurrentUser() != null) {
             if (!c.getCurrentUser().isInstructor()) {
                 // prompt until the user logs out
                 c.promptStudentMenu();
+            } else {
+                c.promptInstructorMenu();
             }
-
         }
-//        c.promptStudentMenu();
-
-        // ask for login
     }
 
 }

@@ -10,6 +10,7 @@ public interface IPerson {
     String getLastName();
     String getId();
     String getPassword();
+    ArrayList<String> getPastCourses();
     
     /**
      * 

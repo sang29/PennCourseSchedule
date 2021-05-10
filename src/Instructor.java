@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Instructor implements IPerson{
     private String firstName;
@@ -54,6 +55,24 @@ public class Instructor implements IPerson{
     public void printCourses() {
         for (ICourse c: getCourses()) {
             System.out.println(c.toString());
+        }
+    }
+    
+    @Override
+    public ArrayList<String> getPastCourses() {
+        return null;
+    }
+    
+    public void printWaitlist() {
+        if (this.waitlist.size() == 0) {
+            System.out.println("Your waitlist is empty");
+        } else {
+            for (Map.Entry<String, ArrayList<String>> entry : this.waitlist.entrySet()) {
+                System.out.printf("Waitlist for %s:\n", entry.getKey());
+                for (String s : entry.getValue()) {
+                    System.out.printf("\t s%\n", s);
+                }
+            }
         }
     }
     
