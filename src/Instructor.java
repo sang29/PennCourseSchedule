@@ -1,52 +1,60 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Instructor implements IPerson{
-    private String name;
-    private int id;
-    private int password;
+    private String firstName;
+    private String lastName;
+    private String id;
+    private String password;
     private String program;
+    private ArrayList<ICourse> courses; //list of courses to teach
+    private HashMap<String, ArrayList<String>> waitlist;
     
-    private int[] courses; //list of courses to teach
+    Instructor(String firstName, String lastName, String id, String password, String program) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.id = id;
+        this.password = password;
+        this.program = program;
+        this.courses = new ArrayList<ICourse>();
+        this.waitlist = new HashMap<String, ArrayList<String>>();
+    }
+    
+    public void setCourses(ArrayList<ICourse> courses) {
+        this.courses = courses;
+    }
+    
+    public void setWaitlist(HashMap<String, ArrayList<String>> waitlist) {
+        this.waitlist = waitlist;
+    }
+    
+    public HashMap<String, ArrayList<String>> getWaitlist() {
+        return this.waitlist;
+    }
     
     @Override
-    public String getName() {
-        return this.name;
+    public String getFirstName() {
+        return this.firstName;
+    }
+    
+    @Override
+    public String getLastName() {
+        return this.lastName;
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-        
-    }
 
     @Override
-    public int getId() {
+    public String getId() {
         // TODO Auto-generated method stub
-        return 0;
+        return this.id;
     }
 
+    
     @Override
-    public void setId() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public int login(int id, int pw) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public int logout(int id, int pw) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void printSchedule() {
-        // TODO Auto-generated method stub
-        
+    public void printCourses() {
+        for (ICourse c: getCourses()) {
+            System.out.println(c.toString());
+        }
     }
     
     //change course info -> maybe get rid of it later?
@@ -87,29 +95,36 @@ public class Instructor implements IPerson{
     }
 
     @Override
-    public ArrayList<Course> getCourses() {
-        // TODO Auto-generated method stub
-        return null;
+    public ArrayList<ICourse> getCourses() {
+        return this.courses;
     }
 
     @Override
-    public ArrayList<Course> getPastCourses() {
-        // TODO Auto-generated method stub
-        return null;
+    public void addCourse(ICourse c) {
+        if (!this.courses.contains(c)) {
+            this.courses.add(c);
+        } else {
+            System.out.print("Requested course in already in the courses list");
+        }
     }
 
     @Override
-    public void addCourse(Course c) {
-        // TODO Auto-generated method stub
-        
+    public void dropCourse(ICourse c) {
+        if (this.courses.contains(c)) {
+            this.courses.remove(c);
+        } else {
+            System.out.print("Requested course is not in the courses list");
+        } 
     }
 
     @Override
-    public void dropCourse(Course c) {
-        // TODO Auto-generated method stub
-        
+    public String getPassword() {
+        return this.password;
     }
-    
-    
+
+    @Override
+    public Boolean isInstructor() {
+        return true;
+    }
 
 }

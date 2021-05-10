@@ -12,7 +12,7 @@ public class Course implements ICourse {
     private int section;
     private String title;
     private String description;
-    private IPerson instructor;
+    private String instructorStr;
     private String type;
     private double units;
     
@@ -88,13 +88,18 @@ public class Course implements ICourse {
     }
 
     @Override
-    public IPerson instructor() {
-        return this.instructor;
+    public String instructorStr() {
+        return this.instructorStr;
     }
     
-    public void setInstructor(String instructor) {
-        this.instructor = new Instructor();
-        this.instructor.setName(instructor);
+//    @Override
+//    public boolean equals(Object o) {
+//        return o == this;
+//    }
+    
+    public void setInstructorStr(String instructor) {
+        this.instructorStr = instructor;
+        
     }
 
     @Override

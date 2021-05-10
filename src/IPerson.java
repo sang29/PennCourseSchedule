@@ -2,14 +2,14 @@ import java.util.*;
 
 public interface IPerson {
     
-    /*
-     * maybe login/logout needs to be in a console?
+    /**
+     * GETTERS & SETTERS
+     * @return
      */
-    
-    String getName();
-    void setName(String name);
+    String getFirstName();
+    String getLastName();
     String getId();
-    void setId();
+    String getPassword();
     
     /**
      * 
@@ -17,11 +17,6 @@ public interface IPerson {
      */
     ArrayList<ICourse> getCourses();
     
-    /**
-     * 
-     * @return list of past courses
-     */
-    ArrayList<String> getPastCourses();
     
     /**
      * 
@@ -39,27 +34,8 @@ public interface IPerson {
      * 
      * @param c course object to be dropped by the person
      */
-    void dropCourse(String subject, int number);
-//    
-//    /**
-//     * Log in the user and give the user edit privilege 
-//     * for their own course schedule
-//     * 
-//     * @param id
-//     * @param pw
-//     * @return -1 upon failure, 0 upon success
-//     */
-//    int login(int id, int pw);
-//    
-//    /**
-//     * Log out the user and take away the edit privilege 
-//     * 
-//     * @param id
-//     * @param pw
-//     * @return -1 upon failure, 0 upon success
-//     */
-//    int logout(int id, int pw);
-//    
+    void dropCourse(ICourse c);
+  
     /**
      * print out the current schedule (for both student 
      * and instructor) 
