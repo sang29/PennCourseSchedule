@@ -29,6 +29,7 @@ public class Course implements ICourse {
     
     public Course(String subject, int id, int section) {
         this.subject = subject;
+//        this.title = "";
         this.id = id;
         this.section = section;
         this.days = new boolean[5];

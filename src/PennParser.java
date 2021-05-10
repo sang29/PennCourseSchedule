@@ -114,6 +114,7 @@ public class PennParser implements IPennParser {
                             .parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
                     // Get the block elements that contains additional information about the course
                     Elements blocks = course.getElementsByClass("courseblockextra");
+                    String prereqs = "";
                     // For each block
                     for (Element block : blocks) {
                         // Get the text content of the block
@@ -124,19 +125,78 @@ public class PennParser implements IPennParser {
                             // Parse out the important information
                             Matcher m = p.matcher(block.text());
                             m.find();
-                            String prereqs = m.group(0);
+                            prereqs = m.group(0);
                             // Add an entry for the course number and the course's prerequisites
                             courseToPrereqsMap.put(courseNumber, prereqs);
                             break;
                         }
-                        // If prerequisites were not found, add an entry with an empty string
-                        courseToPrereqsMap.put(courseNumber, "");
                     }
+                    // If prerequisites were not found, add an entry with an empty string
+                    courseToPrereqsMap.put(courseNumber, prereqs);
                 }
                 // Add an entry for the subject code and courses map to the overall map
                 subjectToCoursesMap.put(code, courseToPrereqsMap);
             }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return subjectToCoursesMap;
+    }
+    
+    
+    public Map<String, Map<Integer, String[]>> parseCoursesAndPrereqs(Map<String, String> subjects) {
+        String catalogBaseUrl = "https://catalog.upenn.edu/search/?P=";
+        // Create a TreeMap that will map each subject code to another Map
+        // The nested Maps will map a course number to the full name of the course
+        Map<String, Map<Integer, String[]>> subjectToCoursesMap = new TreeMap<>();
+        // If the subjects is null or an empty map, return an empty map
+        if (subjects == null || subjects.isEmpty()) return subjectToCoursesMap;
+        Pattern p = Pattern.compile("(?<=Prerequisite[s]*: ).*$");
+        try {
+            // Iterate over each subject code
+            for (String code : subjects.keySet()) {
+                // Create a TreeMap that will map each course number to the full name of the course
+                Map<Integer, String[]> numberToInfoMap = new TreeMap<>();
+                // Get the HTML content of this subject's page in the UPenn catalog
+                Document subjectCatalog = Jsoup.connect(catalogBaseUrl + code).get();
+                // Get the HTML elements for each course of this subject
+                Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
+                // For each course element
+                for (Element course : courses) {
+                    String[] titleAndPrereqs = new String[2];
+                    // Get the heading (contains the course number and course title)
+                    String courseHeading = course.getElementsByTag("h2").get(0).text();
+                    // Parse the course number from the heading
+                    int courseNumber = Integer
+                            .parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
+                    // Parse the course title from the heading
+                    titleAndPrereqs[0] = courseHeading.split("\\b(\\d{3})\\b")[1].trim();
+                    Elements blocks = course.getElementsByClass("courseblockextra");
+                    // For each block
+                    for (Element block : blocks) {
+                        // Get the text content of the block
+                        String blockText = block.text();
+                        // If the block contains information about the course's prerequisites
+                        if (blockText.contains("Prerequisite:")
+                                || blockText.contains("Prerequisites:")) {
+                            // Parse out the important information
+                            Matcher m = p.matcher(block.text());
+                            m.find();
+                            titleAndPrereqs[1] = m.group(0);
+                            // Add an entry for the course number and the course's prerequisites
+                            numberToInfoMap.put(courseNumber, titleAndPrereqs);
+                            break;
+                        }
+                        // If prerequisites were not found, add an entry with an empty string
+                        titleAndPrereqs[1] = "";
+                    }
+                    // Add an entry for the course number and course title to this subject's map
+                    numberToInfoMap.put(courseNumber, titleAndPrereqs);
+                }
+                // Add an entry for the subject code and courses map to overall map
+                subjectToCoursesMap.put(code, numberToInfoMap);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -259,7 +319,7 @@ public class PennParser implements IPennParser {
             }
         }
         // Set the Course object's instructor
-        c.setInstructor(instructor);
+        c.setInstructorStr(instructor);
         while (s.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/")))
             str = s.nextLine().trim();
         // If the end of the time table has been reached, return the course object
@@ -341,7 +401,7 @@ public class PennParser implements IPennParser {
      * @param typeCode
      * @return unabbreviated section type
      */
-    private String parseType(String typeCode) {
+    public String parseType(String typeCode) {
         switch (typeCode) {
             case "LEC":
                 return "Lecture";
