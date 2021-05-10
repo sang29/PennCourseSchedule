@@ -4,12 +4,11 @@ import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.combine;
-import static com.mongodb.client.model.Updates.set;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +66,7 @@ public class Database {
     }
 
     /**
-     * Closes the client
+     * Closes the MongoDB client
      */
     public void closeClient() {
         // If a client hasn't been opened, do nothing
@@ -77,15 +76,21 @@ public class Database {
         db = null;
     }
 
+    /**
+     * Switches the MongoDB client to another database in the cluster (meant for demo)
+     * @param dbName
+     */
     public void switchDatabase(String dbName) {
         // If a client hasn't been opened, do nothing
         if (mongoClient == null || db.getName().equals(dbName)) return;
         db = mongoClient.getDatabase(dbName);
     }
 
+    /**
+     * Clears and removes all collections in the current database (meant for demo)
+     */
     public void clearCollections() {
         if (db.getName().equals("registrar")) return;
-        String name = db.getName();
         for (String collection : collections()) {
             db.getCollection(collection).drop();
         }
@@ -202,7 +207,7 @@ public class Database {
                     .append("number", section.id())
                     .append("section", section.section())
                     .append("type", section.type())
-                    .append("instructor", section.instructor().getName())
+                    .append("instructor", section.instructorStr())
                     .append("days", ((Course) section).daysToString())
                     .append("startTime", start)
                     .append("duration", section.duration())
@@ -262,16 +267,16 @@ public class Database {
             return;
         }
 
-        List<String> courses = new ArrayList<>(); // current courses that the instructor is teaching
+        List<Document> courses = new ArrayList<>(); // current courses that the instructor is
+                                                    // teaching
         List<Document> waitlist = new ArrayList<>(); // waitlist for permission
 
         Document doc = new Document("firstName", firstName.toUpperCase())
                 .append("lastName", lastName.toUpperCase())
-                .append("program", program)
-                .append("id", id)
+                .append("program", program).append("id", id)
                 .append("password", password)
                 .append("courses", courses)
-                .append("pastCourses", waitlist);
+                .append("waitlist", waitlist);
 
         collection.insertOne(doc);
     }
@@ -280,98 +285,6 @@ public class Database {
         if (mongoClient == null) return;
         MongoCollection<Document> studentCollection = db.getCollection("students");
         MongoCollection<Document> sectionCollection = db.getCollection("sections_fall2021");
-//        MongoCollection<Document> courses = db.getCollection("courses");
-
-//        MongoCollection<Document> instructors = db.getCollection("instructors");
-
-//        // find the courseID
-//        Document s = sections
-//                .find(and(eq("subject", subject), eq("number", number), eq("section", section)))
-//                .first();
-//        Document c = courses.find(and(eq("subject", subject), eq("number", number))).first();
-//
-//        if (s == null) {
-//            System.out.println("Requested course is not offered in current semester.");
-//            return;
-//        }
-//
-//        String courseNo = subject + " " + Integer.toString(number);
-//
-//        Document p = people.find(eq("id", id)).first();
-//
-//        if (p == null) {
-//            System.out.println("Requested ID doesn't exist.");
-//            return;
-//        }
-//        ArrayList<Document> currentCourses = (ArrayList<Document>) p.get("courses");
-//        ArrayList<String> pastCourses = (ArrayList<String>) p.get("pastCourses");
-//
-//        // check the pre-req for the class
-//        String prereqStr = getPrereq(subject, number);
-//        if (!checkPrereq(prereqStr, pastCourses)) {
-//            System.out.println("You don't meet the prereq for the course.");
-//            return;
-//        }
-//
-//        // check if the class is full
-//        int max = (int) s.get("max");
-//        int current = (int) s.get("current");
-//        if (current == max) {
-//            System.out.println("Requested section is already full.");
-//            return;
-//        }
-//
-//        // check if permission is requested
-//        if (c.getBoolean("permission")) {
-//            System.out.println("This class needs instructor permission.");
-//            System.out.println("Sending permission request to the instructor...");
-//            System.out.println("Your class will be added once the instructor approves.");
-//
-//            Document wait = new Document();
-//            wait.append("student_id", p.get("id")).append("subject", s.get("subject"))
-//                    .append("number", s.get("number")).append("section", s.get("section"));
-//
-//            String instructor = (String) s.get("instructor");
-//            String firstInstructor = instructor.split("/")[0]; // in case there are multiple
-//                                                               // instructors
-//
-//            instructors.updateOne(eq("lastName", firstInstructor),
-//                    new Document().append("$push", new Document("waitlist", wait)));
-//            return;
-//        }
-//        if (currentCourses.size() >= 5) {
-//            System.out.println("You cannot take more than five courses per semester.");
-//            return;
-//        }
-//
-//        ICourse requestedICourse = findSection(subject, number, section);
-//        for (Document currentCourse : currentCourses) {
-//            String curSubject = currentCourse.getString("subject");
-//            int curNumber = currentCourse.getInteger("number");
-//            int curSection = currentCourse.getInteger("section");
-//
-//            ICourse curICourse = findSection(curSubject, curNumber, curSection);
-//
-//            // check duplicate course in the student courses
-//            if (curSubject.equals(subject) && curNumber == number && curSection == section) {
-//                System.out.println("Requested course was already added to student schedule.");
-//                return;
-//            }
-//
-//            // check class time conflict
-//            if (requestedICourse.conflictsWith(curICourse)) {
-//                System.out.println(
-//                        "Requested course has time conflicts with current course selection.");
-//                return;
-//            }
-//        }
-//
-//        // check if the course was taken in the past
-//        if (pastCourses.contains(courseNo)) {
-//            System.out.println("Requested course is already taken previously.");
-//            return;
-//        }
-
         Document studentCourse = new Document();
         studentCourse.append("subject", subject).append("number", number).append("section",
                 section);
@@ -397,10 +310,9 @@ public class Database {
         return;
     }
 
-    
     // ------------------------------------------------------------------------------------------
     /* QUERIES */
-    
+
     public String getPrereq(String subject, int number) {
         MongoCollection<Document> courses = db.getCollection("courses");
         Document c = courses.find(and(eq("subject", subject), eq("number", number))).first();
@@ -408,12 +320,116 @@ public class Database {
         return prereqStr;
     }
 
-    public Document findStudentById(String id) {
-        MongoCollection<Document> students = db.getCollection("students");
-        Document c = students.find(eq("id", id)).first();
-        return c;
+    public Student findStudentById(String id) {
+        MongoCollection<Document> studentCollection = db.getCollection("students");
+        Document student = studentCollection.find(eq("id", id)).first();
+
+        if (student == null) {
+            return null;
+        }
+
+        String pw = student.getString("password");
+        String firstName = student.getString("firstName");
+        String lastName = student.getString("lastName");
+        String program = student.getString("program");
+        ArrayList<Document> courses = (ArrayList<Document>) student.get("courses");
+        ArrayList<String> pastCourses = (ArrayList<String>) student.get("pastCourses");
+
+        ArrayList<ICourse> curCourses = new ArrayList<ICourse>();
+
+        for (Document d : courses) {
+            ICourse c = findSection(d.getString("subject"), d.getInteger("number"),
+                    d.getInteger("section"));
+            curCourses.add(c);
+        }
+
+        Student s = new Student(firstName, lastName, id, pw, program);
+        s.setCourses(curCourses);
+        s.setPastCourses(pastCourses);
+
+        return s;
     }
 
+    public void deleteStudentById(String id) {
+        MongoCollection<Document> studentCollection = db.getCollection("students");
+        studentCollection.deleteOne(eq("id", id));
+    }
+
+    public Instructor findInstructorById(String id) {
+        MongoCollection<Document> instructors = db.getCollection("instructors");
+        Document instructor = instructors.find(eq("id", id)).first();
+
+        if (instructor == null) {
+            return null;
+        }
+
+        String pw = instructor.getString("password");
+        String firstName = instructor.getString("firstName");
+        String lastName = instructor.getString("lastName");
+        String program = instructor.getString("program");
+        ArrayList<Document> courses = (ArrayList<Document>) instructor.get("courses");
+        ArrayList<Document> waitlist = (ArrayList<Document>) instructor.get("waitlist");
+
+        ArrayList<ICourse> curCourses = new ArrayList<ICourse>();
+        HashMap<String, ArrayList<String>> curWaitlist = new HashMap<String, ArrayList<String>>();
+
+        for (Document d : courses) {
+            ICourse c = findSection(d.getString("subject"), d.getInteger("number"),
+                    d.getInteger("section"));
+            curCourses.add(c);
+        }
+
+        for (Document d : waitlist) {
+            String subject = d.getString("subject");
+            int number = d.getInteger("number");
+            int section = d.getInteger("section");
+            String student_id = d.getString("student_id");
+//            ICourse c = new Course(subject, number, section);
+            String c = subject + " " + Integer.toString(number) + " " + Integer.toString(section);
+
+            ArrayList<String> studentList = curWaitlist.getOrDefault(c, new ArrayList<String>());
+//            System.out.printf("adding %s to waitlist\n", student_id);
+            studentList.add(student_id);
+            curWaitlist.put(c, studentList);
+        }
+
+        Instructor i = new Instructor(firstName, lastName, id, pw, program);
+        i.setCourses(curCourses);
+        i.setWaitlist(curWaitlist);
+
+//        Document wait = new Document();
+//        wait.append("student_id", student_id).append("subject", subject).append("number", number).append("section",
+//                section);
+
+        return i;
+    }
+
+    public void deleteInstructorById(String id) {
+        MongoCollection<Document> instructorCollection = db.getCollection("instructors");
+        instructorCollection.deleteOne(eq("id", id));
+    }
+
+    public void deleteCourseFromStudent(String id, String subject, int number, int section) {
+        MongoCollection<Document> studentCollection = db.getCollection("students");
+        MongoCollection<Document> sectionCollection = db.getCollection("sections_fall2021");
+        Document course = new Document().append("subject", subject)
+                .append("number", number)
+                .append("section", section);
+
+        // delete from student schedule
+        studentCollection.updateOne(eq("id", id),
+                new Document().append("$pull", new Document("courses", course)));
+
+        // decrement current field of the section
+        sectionCollection.updateOne(
+                and(eq("subject", subject), eq("number", number), eq("section", section)),
+                new Document().append("$inc", new Document("current", -1)));
+    }
+
+    /**
+     * @param subject Subject code, e.g. "CIT"
+     * @return List of Course objects for each course in the given subject
+     */
     public List<ICourse> findCoursesBySubject(String subject) {
         List<ICourse> courses = new LinkedList<>();
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
@@ -432,13 +448,14 @@ public class Database {
             if (matching.first() != null) {
                 title = matching.first().getString("title");
             }
-
             c.setTitle(title);
             courses.add(c);
         }
         return courses;
     }
 
+    // I think that this should be "findSectionsBySubjectAndNumber"
+    // Another method would be "findCourseBySubjectAndNumber"
     public List<ICourse> findCourseBySubjectAndNumber(String subject, int number) {
         List<ICourse> courses = new LinkedList<>();
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
@@ -483,15 +500,17 @@ public class Database {
 
     /**
      * Creates a Course object using a document from the database
+     * 
      * @param doc
      * @param coll
      * @return
      */
-    private Course createCourseFromDocument(Document doc, MongoCollection<Document> coll) {
+    private Course createCourseFromDocument(Document doc,
+            MongoCollection<Document> coursesCollection) {
         Course c = new Course(doc.getString("subject"), doc.getInteger("number"),
                 doc.getInteger("section"));
         c.setType(doc.getString("type"));
-        c.setInstructor(doc.getString("instructor"));
+        c.setInstructorStr(doc.getString("instructor"));
         c.setDays(doc.getString("days"));
         int startTime = doc.getInteger("startTime");
         c.setStartTime(startTime / 60, startTime % 60);
@@ -499,7 +518,7 @@ public class Database {
         c.setMax(doc.getInteger("max"));
         c.setCurrent(doc.getInteger("current"));
         c.setUnits(doc.getDouble("units"));
-        String title = coll.find(
+        String title = coursesCollection.find(
                 and(
                         eq("subject", doc.getString("subject")),
                         eq("number", doc.getInteger("number"))))
@@ -511,19 +530,21 @@ public class Database {
     // ------------------------------------------------------------------------------------------
     /* PERMISSION */
 
-    public Boolean courseNeedsPerm(String subject, int number) {
+    public boolean courseNeedsPerm(String subject, int number) {
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
         Document doc = coursesCollection.find(and(eq("subject", subject), eq("number", number)))
                 .first();
         return doc.getBoolean("permission");
     }
 
-    void sendPermRequest(String student_id, String subject, int number, int section) {
+    public void sendPermRequest(String student_id, String subject, int number, int section) {
         MongoCollection<Document> sections = db.getCollection("sections_fall2021");
         MongoCollection<Document> instructors = db.getCollection("instructors");
 
         Document wait = new Document();
-        wait.append("student_id", student_id).append("subject", subject).append("number", number)
+        wait.append("student_id", student_id)
+                .append("subject", subject)
+                .append("number", number)
                 .append("section", section);
 
         Document s = sections
@@ -584,17 +605,35 @@ public class Database {
     }
 
     public static void main(String[] args) {
-        Database m = new Database();
-        m.openClient();
-//        m.printAllCourses();
-//        m.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik_id", "sangik_pw");
-//        m.pushStudentToDatabase("Philipp", "Gaissert", "CIT", "philipp_id", "philipp_pw");
-//        m.pushCourseToStudent("sangik_id", "CIT", 590, 1);
-//        m.pushCourseToStudent("sangik_id", "CIT", 592, 1);
-//        m.pushCourseToStudent("sangik_id", "CIT", 593, 1);
-//        m.pushPastCourseToStudent("sangik_id", "CIT", 591);
-//        m.pushPastCourseToStudent("sangik_id", "CIT", 593);
-        m.closeClient();
+//        Database db = new Database();
+//        db.openClient();
+//        Instructor i;
+//        HashMap<ICourse, ArrayList<String>> waitlist;
+//        
+//        db.deleteStudentById("sangik_id");
+//        db.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik_id", "sangik_pw");
+// 
+//        //CIS 557
+//        db.pushInstructorToDatabase("Eric", "Fouh", "CIS", "eric_id", "eric_pw");
+//        i = db.findInstructorById("eric_id");
+//        waitlist = i.getWaitlist();
+//        
+//        db.sendPermRequest("sangik_id", "CIS", 557, 1);
+//        i = db.findInstructorById("eric_id");
+//        waitlist = i.getWaitlist();
+//        for (Map.Entry<ICourse, ArrayList<String>> entry : waitlist.entrySet()) {
+//            System.out.printf("%s\n", entry.getKey().subject());
+//            System.out.printf("%d\n", entry.getKey().id());
+//            System.out.printf("%s\n", entry.getValue().get(0));
+////            assertEquals(entry.getKey().id(), 557);
+////            assertEquals(entry.getKey().section(), 1);
+////            assertEquals(entry.getValue().get(0), "sangik_id");
+//         }
+//        
+//        db.deleteStudentById("sangik_id");
+//        db.deleteInstructorById("eric_id");
+//        db.closeClient();
+
     }
 
 }

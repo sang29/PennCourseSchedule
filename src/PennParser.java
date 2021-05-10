@@ -319,7 +319,7 @@ public class PennParser implements IPennParser {
             }
         }
         // Set the Course object's instructor
-        c.setInstructor(instructor);
+        c.setInstructorStr(instructor);
         while (s.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/")))
             str = s.nextLine().trim();
         // If the end of the time table has been reached, return the course object

@@ -108,41 +108,26 @@ public class Console implements IConsole {
     @Override
     public int login(String id, String pw, boolean isInstructor) {
         db.openClient();
-        Document p = db.findStudentById(id);
+        Student s = db.findStudentById(id);
 
-        if (p == null) {
+        if (s == null) {
             System.out.println("Requested student ID doesn't exist. Please try again");
             db.closeClient();
             return -1;
         }
+        
+        //find instructor by ID
 
-        String dbpw = p.getString("password"); // get pw from db
-
+        String dbpw = s.getPassword(); // get pw from db
+ 
         if (dbpw.equals(pw)) {
-
-            String firstName = p.getString("firstName");
-            String lastName = p.getString("lastName");
-            String program = p.getString("program");
-            System.out.printf("Welcome %s %s in %s program!\n", firstName, lastName, program);
-            ArrayList<Document> courses = (ArrayList<Document>) p.get("courses");
-            ArrayList<String> pastCourses = (ArrayList<String>) p.get("pastCourses");
-
-            ArrayList<ICourse> curCourses = new ArrayList<ICourse>();
-
-            for (Document d : courses) {
-                ICourse c = db.findSection(d.getString("subject"), d.getInteger("number"), d.getInteger("section"));
-//                System.out.printf("%s", c.toString());
-                curCourses.add(c);
-            }
 
             if (isInstructor) {
                 Instructor curI = new Instructor();
                 setCurrentUser(curI);
             } else {
-                Student curS = new Student(firstName, lastName, id, pw, program);
-                curS.setCourses(curCourses);
-                curS.setPastCoursess(pastCourses);
-                setCurrentUser(curS);
+                
+                setCurrentUser(s);
             }
             db.closeClient();
             return 0;

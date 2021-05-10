@@ -12,10 +12,6 @@ public class Student implements IPerson{
     private String password;
     private ArrayList<ICourse> courses;
     private ArrayList<String> pastCourses;
-//    Database db;
-    
-//    private ArrayList<Course> courses; //courses to take this upcoming semester
-//    private ArrayList<Course> pastCourses; //list of courses taken
     
     Student(String firstName, String lastName, String id, String password, String program) {
         this.firstName = firstName;
@@ -23,16 +19,13 @@ public class Student implements IPerson{
         this.id = id;
         this.password = password;
         this.program = program;
-//        this.courses = courses;
-//        this.pastCourses = pastCourses;
-//        this.db = new Database();
     }
     
     public void setCourses(ArrayList<ICourse> courses) {
         this.courses = courses;
     }
     
-    public void setPastCoursess(ArrayList<String> pastCourses) {
+    public void setPastCourses(ArrayList<String> pastCourses) {
         this.pastCourses = pastCourses;
     }
     
@@ -46,15 +39,11 @@ public class Student implements IPerson{
         return courses;
     }
 
-    @Override
     public ArrayList<String> getPastCourses() {
         return pastCourses;
     }
 
-    @Override
-    public void addCourse(ICourse c) {
-        courses.add(c); 
-    }
+    
     
     public void addPastCourse(String pastCourse) {
         pastCourses.add(pastCourse);
@@ -64,35 +53,21 @@ public class Student implements IPerson{
 //        c.instructor().takePermRequest(c, this);
 //    }
     
-    public void dropCourse(Course c) {
-        if (!courses.contains(c)) {
-            System.out.printf("Course: %s doesn't exist in the user's course list.\n", c.title());
-            return;
-        }
-        courses.remove(c);
-    }
 
     @Override
-    public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+    public String getFirstName() {
+        return this.firstName;
+    }
+    
+    @Override
+    public String getLastName() {
+        return this.lastName;
     }
 
-    @Override
-    public void setName(String name) {
-        // TODO Auto-generated method stub
-        
-    }
 
     @Override
     public String getId() {
         return this.id;
-    }
-
-    @Override
-    public void setId() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -212,6 +187,30 @@ public class Student implements IPerson{
 //        System.out.println(m.checkPrereq(prereqStr, pastCourses));
 //        m.closeClient();
 
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public void addCourse(ICourse c) {
+        // TODO Auto-generated method stub
+        if (!this.courses.contains(c)) {
+            this.courses.add(c);
+        } else {
+            System.out.print("Requested course in already in the courses list");
+        }
+    }
+
+    @Override
+    public void dropCourse(ICourse c) {
+        if (this.courses.contains(c)) {
+            this.courses.remove(c);
+        } else {
+            System.out.print("Requested course is not in the courses list");
+        } 
     }
     
 }

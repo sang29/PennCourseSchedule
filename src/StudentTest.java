@@ -10,7 +10,7 @@ public class StudentTest {
     public void testMeetsPrereq() {
         Student s = new Student("Sang Ik", "Han", "sangik_id", "sangik_pw", "CIT");
         ArrayList<String> pastCourses = new ArrayList<String>();
-        s.setPastCoursess(pastCourses);
+        s.setPastCourses(pastCourses);
         String prereqStr = "ECON 101 AND ECON 103 AND MATH 104 AND (MATH 114 OR MATH 115)";
         assertFalse(s.meetsPrereq(prereqStr));
         

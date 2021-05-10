@@ -37,7 +37,7 @@ public interface ICourse extends Comparable<ICourse> {
     /**
      * @return course instructor
      */
-    public IPerson instructor();
+    public String instructorStr();
     
     /**
      * @return course type, e.g. "Lecture", "Recitation"
@@ -91,4 +91,7 @@ public interface ICourse extends Comparable<ICourse> {
      * @return true if the courses have a time conflict
      */
     public boolean conflictsWith(ICourse c);
+    
+    boolean equals(Object o);
+    
 }
