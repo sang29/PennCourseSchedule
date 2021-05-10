@@ -8,7 +8,7 @@ public interface IConsole {
      * @param pw
      * @return -1 upon failure, 0 upon success
      */
-    int login(String id, String pw);
+    int login(String id, String pw, boolean isInstructor);
     
     /**
      * Log out the user and take away the edit privilege 

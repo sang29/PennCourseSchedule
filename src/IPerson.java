@@ -8,7 +8,7 @@ public interface IPerson {
     
     String getName();
     void setName(String name);
-    int getId();
+    String getId();
     void setId();
     
     /**
@@ -33,7 +33,7 @@ public interface IPerson {
      * 
      * @param c course object to be added to the person
      */
-    void addCourse(String subject, int number);
+    void addCourse(ICourse c);
     
     /**
      * 
@@ -60,13 +60,13 @@ public interface IPerson {
 //     */
 //    int logout(int id, int pw);
 //    
-//    /**
-//     * print out the current schedule (for both student 
-//     * and instructor) 
-//     * 
-//     * print out error message if the user is not logged in
-//     */
-//    void printSchedule();
+    /**
+     * print out the current schedule (for both student 
+     * and instructor) 
+     * 
+     * print out error message if the user is not logged in
+     */
+    void printCourses();
     
     
     
