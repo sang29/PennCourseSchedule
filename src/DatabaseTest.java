@@ -16,7 +16,7 @@ public class DatabaseTest {
     }
 
     @Test
-    public void testDatabase() {
+    public void testDatabaseConnection() {
         assertEquals("registrar", db.name());
         List<String> collections = db.collections();
         assertTrue(collections.contains("subjects"));
