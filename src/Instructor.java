@@ -2,15 +2,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Instructor implements IPerson{
+public class Instructor implements IPerson {
     private String firstName;
     private String lastName;
     private String id;
     private String password;
     private String program;
-    private ArrayList<ICourse> courses; //list of courses to teach
+    private ArrayList<ICourse> courses; // list of courses to teach
     private HashMap<String, ArrayList<String>> waitlist;
-    
+
     Instructor(String firstName, String lastName, String id, String password, String program) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -20,26 +20,26 @@ public class Instructor implements IPerson{
         this.courses = new ArrayList<ICourse>();
         this.waitlist = new HashMap<String, ArrayList<String>>();
     }
-    
+
     public void setCourses(ArrayList<ICourse> courses) {
         this.courses = courses;
     }
-    
+
     public void setWaitlist(HashMap<String, ArrayList<String>> waitlist) {
         this.waitlist = waitlist;
     }
-    
+
     public HashMap<String, ArrayList<String>> getWaitlist() {
         return this.waitlist;
     }
-    
+
     @Override
     public String getFirstName() {
         return this.firstName;
     }
-    
+
     @Override
-    public String getLastName() { 
+    public String getLastName() {
         return this.lastName;
     }
 
@@ -48,20 +48,19 @@ public class Instructor implements IPerson{
         return this.id;
     }
 
-    
     @Override
     public void printCourses() {
-        for (ICourse c: getCourses()) {
+        for (ICourse c : getCourses()) {
             System.out.println(c.toString());
         }
     }
-    
-    //returns null since instructor doesn't have data field for past courses
+
+    // returns null since instructor doesn't have data field for past courses
     @Override
     public ArrayList<String> getPastCourses() {
         return null;
     }
-    
+
     public void printWaitlist() {
         if (this.waitlist.size() == 0) {
             System.out.println("Your waitlist is empty");

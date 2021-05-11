@@ -1,15 +1,12 @@
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Scanner;
 
-import org.bson.Document;
-
 public class Console implements IConsole {
-    private IPerson p; //currentUser
+    private IPerson p; // currentUser
     Database db;
     Boolean isInstructor;
-
 
     Console() {
         p = null; // initialize p as null
@@ -23,7 +20,7 @@ public class Console implements IConsole {
     public IPerson getCurrentUser() {
         return p;
     };
-    
+
     // ------------------------------------------------------------------------------------------
     /* LOGIN LOGOUT */
     public void promptLogin() {
@@ -35,9 +32,9 @@ public class Console implements IConsole {
 
         if (login(id, pw) == -1) {
             promptLogin();
-        };
+        }
     }
-    
+
     @Override
     public int login(String id, String pw) {
         db.openClient();
@@ -49,8 +46,7 @@ public class Console implements IConsole {
                 System.out.println("Requested student ID doesn't exist. Please try again");
                 db.closeClient();
                 return -1;
-            }
-            else {
+            } else {
                 isInstructor = true;
             }
         } else {
@@ -58,7 +54,7 @@ public class Console implements IConsole {
         }
 
         String dbpw = user.getPassword(); // get pw from db
- 
+
         if (dbpw.equals(pw)) {
             setCurrentUser(user);
             db.closeClient();
@@ -75,18 +71,18 @@ public class Console implements IConsole {
     public void logout() {
         setCurrentUser(null);
     }
-    
+
     // ------------------------------------------------------------------------------------------
-    /*  MENU PROMPTING */
+    /* MENU PROMPTING */
     public void promptStudentMenu() {
         Student loggedinStudent = (Student) getCurrentUser();
-        
+
         System.out.println("Please type the integer value for next action.");
         System.out.printf(
                 "1. View current courses \n2. View past courses \n3. Add a new course \n4. View courses by subject \n5. Request course permission \n6. Logout \n");
 
         Scanner s = new Scanner(System.in);
-        
+
         String selectionStr;
         int selection;
         selectionStr = s.nextLine();
@@ -95,7 +91,7 @@ public class Console implements IConsole {
             if (selection < 1 || selection > 6) {
                 System.out.println("Your selection is out of bound. Select again");
                 promptStudentMenu();
-            } 
+            }
 
             if (selection == 1) {
                 loggedinStudent.printCourses();
@@ -134,13 +130,12 @@ public class Console implements IConsole {
             System.out.println("ERROR: " + s + " is not a number.");
         }
     }
-    
+
     public void promptInstructorMenu() {
         Instructor loggedinInstructor = (Instructor) getCurrentUser();
-        
+
         System.out.println("Please type the integer value for next action.");
-        System.out.printf(
-                "1. View current courses \n2. View waitlist \n3. Approve waitlist \n4. Logout \n");
+        System.out.printf("1. View current courses \n2. View waitlist \n3. Approve waitlist \n4. Logout \n");
 
         Scanner s = new Scanner(System.in);
         String selectionStr;
@@ -152,12 +147,12 @@ public class Console implements IConsole {
                 System.out.println("Your selection is out of bound. Select again");
                 promptInstructorMenu();
             }
-            
+
             if (selection == 1) {
                 loggedinInstructor.printCourses();
             } else if (selection == 2) {
                 loggedinInstructor.printWaitlist();
-            } else if (selection == 3){
+            } else if (selection == 3) {
                 System.out.println("Please type the subject for approval.");
                 String subject = s.nextLine();
                 System.out.println("Please type the number for approval.");
@@ -177,18 +172,17 @@ public class Console implements IConsole {
             System.out.println("ERROR: " + s + " is not a number.");
         }
 
-        
     }
-    
+
     // ------------------------------------------------------------------------------------------
     /* STUDENT SUBMETHODS */
-    public void sendPermRequest(String student_id, String subject, int number, int section) {
+    public void sendPermRequest(String studentId, String subject, int number, int section) {
         db.openClient();
-        db.sendPermRequest(student_id, subject, number, section);
+        db.sendPermRequest(studentId, subject, number, section);
         db.closeClient();
         System.out.println("Just sent a permission request!");
     }
-    
+
     public void addSection(String subject, int number, int section) {
 
         if (p == null) {
@@ -270,19 +264,19 @@ public class Console implements IConsole {
             return;
         }
     }
-    
+
     // ------------------------------------------------------------------------------------------
-    /*  INSTRUCTOR SUBMETHOD */
-    public void givePermToStudent(String student_id, String subject, int number, int section) {
+    /* INSTRUCTOR SUBMETHOD */
+    public void givePermToStudent(String studentId, String subject, int number, int section) {
         db.openClient();
-        db.pushCourseToStudent(student_id, subject, number, section);
-        //need to take the student off of the waitlist too!
+        db.pushCourseToStudent(studentId, subject, number, section);
+        // need to take the student off of the waitlist too!
         db.closeClient();
         System.out.println("Permission granted");
     }
-    
+
     // ------------------------------------------------------------------------------------------
-    /*  COMMON SUBMETHOD */
+    /* COMMON SUBMETHOD */
     public void printCoursesBySubject(String subject) {
         db.openClient();
         List<ICourse> courseList = db.findCoursesBySubject(subject);
@@ -294,15 +288,15 @@ public class Console implements IConsole {
     }
 
     // ------------------------------------------------------------------------------------------
-    /*  CONSOLE MAIN */
+    /* CONSOLE MAIN */
     public static void main(String[] args) {
-        
+
         Console c = new Console();
         c.promptLogin();
 
         while (true) {
             if (c.getCurrentUser() == null) {
-                //prompt login again if the user logged out
+                // prompt login again if the user logged out
                 c.promptLogin();
             } else {
                 if (!c.getCurrentUser().isInstructor()) {
