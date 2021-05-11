@@ -376,7 +376,7 @@ public class Database {
         }
 
         Student s = new Student(firstName, lastName, id, pw, program);
-        s.setCourses(curCourses);
+        s.setCurrentCourses(curCourses);
         s.setPastCourses(pastCourses);
 
         return s;
@@ -424,7 +424,7 @@ public class Database {
         }
 
         Instructor i = new Instructor(firstName, lastName, id, pw, program);
-        i.setCourses(curCourses);
+        i.setCurrentCourses(curCourses);
         i.setWaitlist(curWaitlist);
         return i;
     }

@@ -67,7 +67,7 @@ public class Student implements IPerson {
         if (this.currentCourses == null) {
             ArrayList<ICourse> cList = new ArrayList<ICourse>();
             cList.add(c);
-            setCourses(cList);
+            setCurrentCourses(cList);
         } else if (!this.currentCourses.contains(c)) {
             this.currentCourses.add(c);
         } else {
@@ -82,7 +82,7 @@ public class Student implements IPerson {
      * 
      * @param courses: ArrayList<ICourse>
      */
-    public void setCourses(ArrayList<ICourse> courses) {
+    public void setCurrentCourses(ArrayList<ICourse> courses) {
         this.currentCourses = courses;
     }
 
