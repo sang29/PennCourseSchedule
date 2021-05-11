@@ -73,7 +73,7 @@ public class PennParserTest {
         assertEquals("Electrical & Systems Engineering", subjects.get("ESE"));
         assertEquals("Wharton Undergraduate", subjects.get("WH"));
 
-        Map<String, Map<Integer, String[]>> courses = p.parseCoursesAndPrereqs(subjects);
+        Map<String, Map<Integer, String[]>> courses = p.parseCourses(subjects);
 
         assertEquals("Data Structures and Sofware Design", courses.get("CIT").get(594)[0]);
         assertEquals("Operating Systems Design and Implementation", courses.get("CIS").get(548)[0]);

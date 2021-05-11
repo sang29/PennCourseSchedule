@@ -1,5 +1,3 @@
-import java.util.Collection;
-
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.joda.time.Interval;
@@ -149,6 +147,8 @@ public class Course implements ICourse {
                 case 'F':
                     this.days[F] = true;
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -158,11 +158,21 @@ public class Course implements ICourse {
      */
     public String daysToString() {
         StringBuilder sb = new StringBuilder();
-        if (days[M]) sb.append('M');
-        if (days[T]) sb.append('T');
-        if (days[W]) sb.append('W');
-        if (days[R]) sb.append('R');
-        if (days[F]) sb.append('F');
+        if (days[M]) {
+            sb.append('M');
+        }
+        if (days[T]) {
+            sb.append('T');
+        }
+        if (days[W]) {
+            sb.append('W');
+        }
+        if (days[R]) {
+            sb.append('R');
+        }
+        if (days[F]) {
+            sb.append('F');
+        }
         return sb.toString();
     }
 

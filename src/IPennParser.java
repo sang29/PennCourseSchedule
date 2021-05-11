@@ -1,6 +1,11 @@
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * An interface for parsing subjects, courses, and sections available at UPenn
+ * @author Philipp Gaissert & Sang Ik Han
+ *
+ */
 public interface IPennParser {
 
     /**
@@ -12,20 +17,14 @@ public interface IPennParser {
     public Map<String, String> parseSubjects();
 
     /**
-     * Parses all possible courses (number & title) from the UPenn catalog
+     * Parses all possible courses (subject, number, title, and prerequisites) from the UPenn
+     * catalog
      * 
      * @param subjects Map of subject codes to subject names
-     * @return Map of subject codes to Map of course numbers to course titles
+     * @return Map of subject codes to Map of course numbers to array that holds 1) course titles
+     *         and 2) prerequisites
      */
-    public Map<String, Map<Integer, String>> parseCourses(Map<String, String> subjects);
-
-    /**
-     * Parses all course prerequisites (as strings) from the UPenn catalog
-     * 
-     * @param subjects Map of subject codes to subject names
-     * @return Map of subject codes to Map of course numbers to prerequisites
-     */
-    public Map<String, Map<Integer, String>> parsePrereqs(Map<String, String> subjects);
+    public Map<String, Map<Integer, String[]>> parseCourses(Map<String, String> subjects);
 
     /**
      * Parses all available course sections for the upcoming semester from the UPenn time table

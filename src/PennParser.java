@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -14,11 +13,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+/**
+ * A class for parsing subjects, courses, and sections available at UPenn
+ * 
+ * @author Philipp Gaissert & Sang Ik Han
+ *
+ */
 public class PennParser implements IPennParser {
 
     @Override
     public Map<String, String> parseSubjects() {
-        String courseIndexUrl = "https://srfs.upenn.edu/registration-catalog-calendar/timetables/main";
+        String courseIndexUrl =
+                "https://srfs.upenn.edu/registration-catalog-calendar/timetables/main";
         // Create a TreeMap that will map each subject code to the full name of the subject
         Map<String, String> subjects = new TreeMap<>();
         try {
@@ -45,113 +51,15 @@ public class PennParser implements IPennParser {
         return subjects;
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    @Override
-    public Map<String, Map<Integer, String>> parseCourses(Map<String, String> subjects) {
-        String catalogBaseUrl = "https://catalog.upenn.edu/search/?P=";
-        // Create a TreeMap that will map each subject code to another Map
-        // The nested Maps will map a course number to the full name of the course
-        Map<String, Map<Integer, String>> subjectToCoursesMap = new TreeMap<>();
-        // If the subjects is null or an empty map, return an empty map
-        if (subjects == null || subjects.isEmpty()) return subjectToCoursesMap;
-        try {
-            // Iterate over each subject code
-            for (String code : subjects.keySet()) {
-                // Create a TreeMap that will map each course number to the full name of the course
-                Map<Integer, String> numberToTitleMap = new TreeMap<>();
-                // Get the HTML content of this subject's page in the UPenn catalog
-                Document subjectCatalog = Jsoup.connect(catalogBaseUrl + code).get();
-                // Get the HTML elements for each course of this subject
-                Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
-                // For each course element
-                for (Element course : courses) {
-                    // Get the heading (contains the course number and course title)
-                    String courseHeading = course.getElementsByTag("h2").get(0).text();
-                    // Parse the course number from the heading
-                    int courseNumber = Integer
-                            .parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
-                    // Parse the course title from the heading
-                    String courseTitle = courseHeading.split("\\b(\\d{3})\\b")[1].trim();
-                    // Add an entry for the course number and course title to this subject's map
-                    numberToTitleMap.put(courseNumber, courseTitle);
-                }
-                // Add an entry for the subject code and courses map to overall map
-                subjectToCoursesMap.put(code, numberToTitleMap);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return subjectToCoursesMap;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    @Override
-    public Map<String, Map<Integer, String>> parsePrereqs(Map<String, String> subjects) {
-        String catalogUrl = "https://catalog.upenn.edu/search/?P=";
-        // Create a TreeMap that will map each subject code to another Map
-        // The nested Maps will map a course number to a string that states the course's
-        // prerequisites
-        Map<String, Map<Integer, String>> subjectToCoursesMap = new HashMap<>();
-        Pattern p = Pattern.compile("(?<=Prerequisite[s]*: ).*$");
-        try {
-            // Iterate over each subject code
-            for (String code : subjects.keySet()) {
-                // Create a TreeMap that will map each course number to the string
-                // that states the course's prerequisites
-                Map<Integer, String> courseToPrereqsMap = new TreeMap<>();
-                // Get the HTML content of this subject's page in the UPenn catalog
-                Document subjectCatalog = Jsoup.connect(catalogUrl + code).get();
-                // Get the HTML elements for each course of this subject
-                Elements courses = subjectCatalog.getElementsByClass("search-courseresult");
-                // For each course element
-                for (Element course : courses) {
-                    // Get the heading (contains the course number and course title)
-                    String courseHeading = course.getElementsByTag("h2").get(0).text();
-                    // Parse the course number from the heading
-                    int courseNumber = Integer
-                            .parseInt(courseHeading.replaceAll("\\D", "").substring(0, 3));
-                    // Get the block elements that contains additional information about the course
-                    Elements blocks = course.getElementsByClass("courseblockextra");
-                    String prereqs = "";
-                    // For each block
-                    for (Element block : blocks) {
-                        // Get the text content of the block
-                        String blockText = block.text();
-                        // If the block contains information about the course's prerequisites
-                        if (blockText.contains("Prerequisite:")
-                                || blockText.contains("Prerequisites:")) {
-                            // Parse out the important information
-                            Matcher m = p.matcher(block.text());
-                            m.find();
-                            prereqs = m.group(0);
-                            // Add an entry for the course number and the course's prerequisites
-                            courseToPrereqsMap.put(courseNumber, prereqs);
-                            break;
-                        }
-                    }
-                    // If prerequisites were not found, add an entry with an empty string
-                    courseToPrereqsMap.put(courseNumber, prereqs);
-                }
-                // Add an entry for the subject code and courses map to the overall map
-                subjectToCoursesMap.put(code, courseToPrereqsMap);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return subjectToCoursesMap;
-    }
-    
-    
-    public Map<String, Map<Integer, String[]>> parseCoursesAndPrereqs(Map<String, String> subjects) {
+    public Map<String, Map<Integer, String[]>> parseCourses(Map<String, String> subjects) {
         String catalogBaseUrl = "https://catalog.upenn.edu/search/?P=";
         // Create a TreeMap that will map each subject code to another Map
         // The nested Maps will map a course number to the full name of the course
         Map<String, Map<Integer, String[]>> subjectToCoursesMap = new TreeMap<>();
         // If the subjects is null or an empty map, return an empty map
-        if (subjects == null || subjects.isEmpty()) return subjectToCoursesMap;
+        if (subjects == null || subjects.isEmpty()) {
+            return subjectToCoursesMap;
+        }
         Pattern p = Pattern.compile("(?<=Prerequisite[s]*: ).*$");
         try {
             // Iterate over each subject code
@@ -214,7 +122,9 @@ public class PennParser implements IPennParser {
                 String code = subject.getKey();
                 // Edge case: There is no https://www.registrar.upenn.edu/timetable/benf.html
                 // Instead, it is https://www.registrar.upenn.edu/timetable/benfg.html
-                if (code.equals("BENF")) code = "BENFG";
+                if (code.equals("BENF")) {
+                    code = "BENFG";
+                }
                 String timeTableUrl = "https://www.registrar.upenn.edu/timetable/"
                         + code.toLowerCase() + ".html";
                 // Get the HTML content of this subject's time table
@@ -320,10 +230,13 @@ public class PennParser implements IPennParser {
         }
         // Set the Course object's instructor
         c.setInstructorStr(instructor);
-        while (s.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/")))
+        while (s.hasNextLine() && !(str.contains("MAX:") || str.contains("MAX W/"))) {
             str = s.nextLine().trim();
+        }
         // If the end of the time table has been reached, return the course object
-        if (!s.hasNextLine()) return c;
+        if (!s.hasNextLine()) {
+            return c;
+        }
         // Otherwise, get the max capacity from the following line
         p = Pattern.compile("(?<=MAX.*: )\\d+");
         m = p.matcher(str);

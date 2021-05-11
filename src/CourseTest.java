@@ -4,8 +4,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import java.util.Scanner;
-
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
