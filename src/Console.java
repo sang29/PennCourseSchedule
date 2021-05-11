@@ -5,8 +5,8 @@ import java.util.Scanner;
 public class Console implements IConsole {
 
     private IPerson currentUser;
-    Database db;
-    Boolean isInstructor;
+    private Database db;
+    private boolean isInstructor;
 
     Console() {
         currentUser = null; // initialize p as null
@@ -33,7 +33,6 @@ public class Console implements IConsole {
         if (login(id, pw) == -1) {
             promptLogin();
         }
-        s.close();
     }
 
     @Override
@@ -135,7 +134,6 @@ public class Console implements IConsole {
         } catch (NumberFormatException e) {
             System.out.format("ERROR: " + s + " is not a number.\n");
         }
-        s.close();
     }
 
     public void promptInstructorMenu() {
@@ -179,7 +177,6 @@ public class Console implements IConsole {
         } catch (NumberFormatException e) {
             System.out.format("ERROR: " + s + " is not a number.\n");
         }
-        s.close();
     }
 
     // ------------------------------------------------------------------------------------------
