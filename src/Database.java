@@ -230,7 +230,7 @@ public class Database {
                         + section.startTime().getMinuteOfHour();
             }
             Document doc = new Document("subject", section.subject())
-                    .append("number", section.id())
+                    .append("number", section.number())
                     .append("section", section.section())
                     .append("type", section.type())
                     .append("instructor", section.instructorStr())

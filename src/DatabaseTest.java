@@ -56,7 +56,7 @@ public class DatabaseTest {
 
         Course section = (Course) sections.get(0);
         assertEquals("CIT", section.subject());
-        assertEquals(594, section.id());
+        assertEquals(594, section.number());
         assertEquals(501, section.section());
         assertEquals("Online Course", section.type());
         assertEquals("", section.daysToString());
@@ -64,7 +64,7 @@ public class DatabaseTest {
 
         section = db.findSection("CIS", 557, 001);
         assertEquals("CIS", section.subject());
-        assertEquals(557, section.id());
+        assertEquals(557, section.number());
         assertEquals(001, section.section());
         assertEquals("Lecture", section.type());
         assertEquals("TR", section.daysToString());
