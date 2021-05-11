@@ -56,21 +56,21 @@ public class DatabaseTest {
 
         Course section = (Course) sections.get(0);
         assertEquals("CIT", section.subject());
-        assertEquals(594, section.id());
+        assertEquals(594, section.number());
         assertEquals(501, section.section());
         assertEquals("Online Course", section.type());
         assertEquals("", section.daysToString());
-        assertEquals("Rubin", section.instructorStr());
+        assertEquals("Rubin", section.instructor());
 
         section = db.findSection("CIS", 557, 001);
         assertEquals("CIS", section.subject());
-        assertEquals(557, section.id());
+        assertEquals(557, section.number());
         assertEquals(001, section.section());
         assertEquals("Lecture", section.type());
         assertEquals("TR", section.daysToString());
         assertEquals(new LocalTime(13, 45), section.startTime());
         assertEquals(90, section.duration());
-        assertEquals("Fouh", section.instructorStr());
+        assertEquals("Fouh", section.instructor());
 
         sections = db.findSectionsByCourseAndType("CIS", 110, "Recitation");
         assertEquals(22, sections.size());

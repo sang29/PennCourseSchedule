@@ -1,5 +1,4 @@
 
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,14 +24,15 @@ public class Console implements IConsole {
     /* LOGIN LOGOUT */
     public void promptLogin() {
         Scanner s = new Scanner(System.in);
-        System.out.println("What is your id?");
+        System.out.format("What is your id?\n");
         String id = s.nextLine();
-        System.out.println("What us your password?");
+        System.out.format("What us your password?\n");
         String pw = s.nextLine();
 
         if (login(id, pw) == -1) {
             promptLogin();
         }
+        s.close();
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Console implements IConsole {
         if (user == null) {
             user = db.findInstructorById(id);
             if (user == null) {
-                System.out.println("Requested student ID doesn't exist. Please try again");
+                System.out.format("Requested student ID doesn't exist. Please try again.\n");
                 db.closeClient();
                 return -1;
             } else {
@@ -61,7 +61,7 @@ public class Console implements IConsole {
             return 0;
 
         } else {
-            System.out.println("Please check your password and try login again.");
+            System.out.format("Please check your password and try login again.\n");
             db.closeClient();
             return -1;
         }
@@ -77,9 +77,14 @@ public class Console implements IConsole {
     public void promptStudentMenu() {
         Student loggedinStudent = (Student) getCurrentUser();
 
-        System.out.println("Please type the integer value for next action.");
-        System.out.printf(
-                "1. View current courses \n2. View past courses \n3. Add a new course \n4. View courses by subject \n5. Request course permission \n6. Logout \n");
+        System.out.format("Please type the integer value for next action.\n");
+        System.out.format(
+                "1. View current courses\n"
+                        + "2. View past courses\n"
+                        + "3. Add a new course\n"
+                        + "4. View courses by subject\n"
+                        + "5. Request course permission\n"
+                        + "6. Logout\n");
 
         Scanner s = new Scanner(System.in);
 
@@ -89,7 +94,7 @@ public class Console implements IConsole {
         try {
             selection = Integer.parseInt(selectionStr);
             if (selection < 1 || selection > 6) {
-                System.out.println("Your selection is out of bound. Select again");
+                System.out.format("Your selection is out of bound. Please try again.\n");
                 promptStudentMenu();
             }
 
@@ -98,44 +103,46 @@ public class Console implements IConsole {
             } else if (selection == 2) {
                 loggedinStudent.printPastCourses();
             } else if (selection == 3) {
-                System.out.println("Please type subject code.");
+                System.out.format("Please type subject code.\n");
                 String subject = s.nextLine();
-                System.out.println("Please type course number.");
+                System.out.format("Please type course number.\n");
                 int number = s.nextInt();
                 s.nextLine();
-                System.out.println("Please type section number.");
+                System.out.format("Please type section number.\n");
                 int section = s.nextInt();
                 s.nextLine();
                 addSection(subject, number, section);
             } else if (selection == 4) {
-                System.out.println("Please type subject code of your interest.");
+                System.out.format("Please type subject code of your interest.\n");
                 String subject = s.nextLine();
                 printCoursesBySubject(subject);
 
             } else if (selection == 5) {
-                System.out.println("Please type subject code.");
+                System.out.format("Please type subject code.\n");
                 String subject = s.nextLine();
-                System.out.println("Please type course number.");
+                System.out.format("Please type course number.\n");
                 int number = s.nextInt();
                 s.nextLine();
-                System.out.println("Please type section number.");
+                System.out.format("Please type section number.\n");
                 int section = s.nextInt();
                 s.nextLine();
                 sendPermRequest(loggedinStudent.getId(), subject, number, section);
             } else {
                 logout();
             }
-            System.out.println();
+            System.out.format("\n");
         } catch (NumberFormatException e) {
-            System.out.println("ERROR: " + s + " is not a number.");
+            System.out.format("ERROR: " + s + " is not a number.\n");
         }
+        s.close();
     }
 
     public void promptInstructorMenu() {
         Instructor loggedinInstructor = (Instructor) getCurrentUser();
 
-        System.out.println("Please type the integer value for next action.");
-        System.out.printf("1. View current courses \n2. View waitlist \n3. Approve waitlist \n4. Logout \n");
+        System.out.format("Please type the integer value for next action.\n");
+        System.out.format(
+                "1. View current courses\n2. View waitlist\n3. Approve waitlist\n4. Logout\n");
 
         Scanner s = new Scanner(System.in);
         String selectionStr;
@@ -144,7 +151,7 @@ public class Console implements IConsole {
         try {
             selection = Integer.parseInt(selectionStr);
             if (selection < 1 || selection > 4) {
-                System.out.println("Your selection is out of bound. Select again");
+                System.out.format("Your selection is out of bound. Please try again.\n");
                 promptInstructorMenu();
             }
 
@@ -153,25 +160,25 @@ public class Console implements IConsole {
             } else if (selection == 2) {
                 loggedinInstructor.printWaitlist();
             } else if (selection == 3) {
-                System.out.println("Please type the subject for approval.");
+                System.out.format("Please type the subject for approval.\n");
                 String subject = s.nextLine();
-                System.out.println("Please type the number for approval.");
+                System.out.format("Please type the number for approval.\n");
                 int number = s.nextInt();
                 s.nextLine();
-                System.out.println("Please type the section for approval.");
+                System.out.format("Please type the section for approval.\n");
                 int section = s.nextInt();
                 s.nextLine();
-                System.out.println("Please type the student_id for approval.");
-                String student_id = s.nextLine();
-                givePermToStudent(student_id, subject, number, section);
+                System.out.format("Please type the student_id for approval.\n");
+                String studentId = s.nextLine();
+                givePermToStudent(studentId, subject, number, section);
             } else {
                 logout();
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("ERROR: " + s + " is not a number.");
+            System.out.format("ERROR: " + s + " is not a number.\n");
         }
-
+        s.close();
     }
 
     // ------------------------------------------------------------------------------------------
@@ -180,15 +187,15 @@ public class Console implements IConsole {
         db.openClient();
         db.sendPermRequest(studentId, subject, number, section);
         db.closeClient();
-        System.out.println("Just sent a permission request!");
+        System.out.format("Your request for permission has been sent!\n");
     }
 
     public void addSection(String subject, int number, int section) {
 
         if (p == null) {
-            System.out.println("Please first login.");
+            System.out.format("Please first login.\n");
         } else if (p.isInstructor()) {
-            System.out.println("Please login as student");
+            System.out.format("Please login as student.\n");
         } else {
 
             db.openClient();
@@ -196,21 +203,21 @@ public class Console implements IConsole {
             String prereqStr = db.getPrereq(subject, number);
 
             if (c == null) {
-                System.out.println("Requested course is not offered in current semester.");
+                System.out.format("Requested course is not offered in current semester.\n");
                 db.closeClient();
                 return;
             }
 
             // check prereq
             if (!((Student) p).meetsPrereq(prereqStr)) {
-                System.out.println("You don't meet the prereq for the course.");
+                System.out.format("You don't meet the prereq for the course.\n");
                 db.closeClient();
                 return;
             }
 
             // check if the class is full
             if (c.max() <= c.current()) {
-                System.out.println("Requested section is already full.");
+                System.out.format("Requested section is already full.\n");
                 db.closeClient();
                 return;
             }
@@ -218,29 +225,32 @@ public class Console implements IConsole {
             // check if permission required
             if (db.courseNeedsPerm(subject, number)) {
                 System.out
-                        .println("This class needs instructor permission. Please separately send permission request.");
+                        .format(
+                                "This course requires permission from the instructor."
+                                        + "Please separately send a request.\n");
                 db.closeClient();
                 return;
             }
 
             // check if the student already has 5 classes
             if (p.getCourses().size() > 4) {
-                System.out.println("You cannot take more than 5 classes.");
+                System.out.format("You cannot take more than 5 classes.\n");
                 db.closeClient();
                 return;
             }
 
             for (ICourse curCourse : p.getCourses()) {
                 // check duplicate course in the student courses
-                if (c.subject().equals(curCourse.subject()) && c.id() == curCourse.id()
+                if (c.subject().equals(curCourse.subject()) && c.number() == curCourse.number()
                         && c.section() == curCourse.section()) {
-                    System.out.println("Requested course was already added to student schedule.");
+                    System.out.format("Requested course was already added to student schedule.\n");
                     db.closeClient();
                     return;
                 }
                 // check class time conflict
                 if (c.conflictsWith(curCourse)) {
-                    System.out.printf("%s has time conflicts with %s\n", c.toString(), curCourse.toString());
+                    System.out.format("%s has time conflicts with %s\n", c.toString(),
+                            curCourse.toString());
                     db.closeClient();
                     return;
                 }
@@ -249,7 +259,7 @@ public class Console implements IConsole {
             // check if the course was taken in the past
             String courseNo = subject + " " + Integer.toString(number);
             if (p.getPastCourses().contains(courseNo)) {
-                System.out.println("Requested course is already taken previously.");
+                System.out.format("Requested course is already taken previously.\n");
                 db.closeClient();
                 return;
             }
@@ -272,7 +282,7 @@ public class Console implements IConsole {
         db.pushCourseToStudent(studentId, subject, number, section);
         // need to take the student off of the waitlist too!
         db.closeClient();
-        System.out.println("Permission granted");
+        System.out.format("Permission granted!\n");
     }
 
     // ------------------------------------------------------------------------------------------
@@ -281,9 +291,9 @@ public class Console implements IConsole {
         db.openClient();
         List<ICourse> courseList = db.findCoursesBySubject(subject);
         for (ICourse c : courseList) {
-            System.out.println(c.toString());
+            System.out.format(c.toString() + "\n");
         }
-        System.out.println();
+        System.out.format("\n");
         db.closeClient();
     }
 

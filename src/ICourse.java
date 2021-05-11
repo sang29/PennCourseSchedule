@@ -17,7 +17,7 @@ public interface ICourse extends Comparable<ICourse> {
     /**
      * @return course id number, e.g. 594
      */
-    public int id();
+    public int number();
     
     /**
      * @return course section, e.g. 001, 201
@@ -32,7 +32,7 @@ public interface ICourse extends Comparable<ICourse> {
     /**
      * @return course instructor
      */
-    public String instructorStr();
+    public String instructor();
     
     /**
      * @return course type, e.g. "Lecture", "Recitation"

@@ -45,7 +45,7 @@ public class CourseTest {
         c.setTitle("Data Structures & Software Design");
         assertEquals("Data Structures & Software Design", c.title());
         c.setInstructorStr("Fouh");
-        assertEquals("Fouh", c.instructorStr());
+        assertEquals("Fouh", c.instructor());
         c.setType("Lecture");
         assertEquals("Lecture", c.type());
         c.setUnits(1.0);

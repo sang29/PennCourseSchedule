@@ -6,10 +6,10 @@ import org.joda.time.LocalTime;
 public class Course implements ICourse {
 
     private String subject;
-    private int id;
+    private int number;
     private int section;
     private String title;
-    private String instructorStr;
+    private String instructor;
     private String type;
     private double units;
 
@@ -20,16 +20,16 @@ public class Course implements ICourse {
     private int max;
     private int current;
 
-    public Course(String subject, int id, int section) {
+    public Course(String subject, int number, int section) {
         this.subject = subject;
-        this.id = id;
+        this.number = number;
         this.section = section;
         this.days = new boolean[5];
     }
 
-    public Course(String subject, int id) {
+    public Course(String subject, int number) {
         this.subject = subject;
-        this.id = id;
+        this.number = number;
         this.days = new boolean[5];
     }
 
@@ -39,7 +39,7 @@ public class Course implements ICourse {
         if (subjComp != 0) {
             return subjComp;
         }
-        int idComp = this.id - o.id();
+        int idComp = this.number - o.number();
         if (idComp != 0) {
             return idComp;
         }
@@ -50,7 +50,7 @@ public class Course implements ICourse {
     public boolean equals(Object o) {
         if (o instanceof Course) {
             return this.subject.equals(((Course) o).subject())
-                    && this.id == ((Course) o).id()
+                    && this.number == ((Course) o).number()
                     && this.section == ((Course) o).section();
         }
         return false;
@@ -62,8 +62,8 @@ public class Course implements ICourse {
     }
 
     @Override
-    public int id() {
-        return this.id;
+    public int number() {
+        return this.number;
     }
 
     @Override
@@ -85,12 +85,12 @@ public class Course implements ICourse {
     }
 
     @Override
-    public String instructorStr() {
-        return this.instructorStr;
+    public String instructor() {
+        return this.instructor;
     }
 
     public void setInstructorStr(String instructor) {
-        this.instructorStr = instructor;
+        this.instructor = instructor;
 
     }
 
@@ -240,7 +240,7 @@ public class Course implements ICourse {
 
     @Override
     public String toString() {
-        return String.format("%s-%d-%03d %s", subject, id, section, title);
+        return String.format("%s-%d-%03d %s", subject, number, section, title);
     }
 
 }
