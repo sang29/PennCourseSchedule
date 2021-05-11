@@ -5,8 +5,8 @@ import java.util.Scanner;
 
 public class Console implements IConsole {
     private IPerson p; // currentUser
-    Database db;
-    Boolean isInstructor;
+    private Database db;
+    private Boolean isInstructor;
 
     Console() {
         p = null; // initialize p as null
