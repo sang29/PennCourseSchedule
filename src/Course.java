@@ -21,7 +21,6 @@ public class Course implements ICourse {
 
     private int max;
     private int current;
-    private Collection<IPerson> students;
 
     public Course(String subject, int id, int section) {
         this.subject = subject;
@@ -74,6 +73,10 @@ public class Course implements ICourse {
         return this.section;
     }
 
+    public void setSection(int section) {
+        this.section = section;
+    }
+
     @Override
     public String title() {
         return this.title;
@@ -124,6 +127,11 @@ public class Course implements ICourse {
      * @param String representation of the days the course meets, e.g. "MW"
      */
     public void setDays(String days) {
+        this.days[M] = false;
+        this.days[T] = false;
+        this.days[W] = false;
+        this.days[R] = false;
+        this.days[F] = false;
         for (int i = 0; i < days.length(); i++) {
             switch (days.charAt(i)) {
                 case 'M':
@@ -195,10 +203,7 @@ public class Course implements ICourse {
 
     @Override
     public int current() {
-        if (students == null) {
-            return this.current;
-        }
-        return this.students.size();
+        return this.current;
     }
 
     public void setCurrent(int current) {
@@ -207,7 +212,7 @@ public class Course implements ICourse {
 
     @Override
     public boolean isFull() {
-        return this.students.size() == this.max;
+        return this.current == this.max;
     }
 
     @Override
@@ -226,12 +231,6 @@ public class Course implements ICourse {
     @Override
     public String toString() {
         return String.format("%s-%d-%03d %s", subject, id, section, title);
-    }
-
-    @Override
-    public String description() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

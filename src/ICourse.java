@@ -30,11 +30,6 @@ public interface ICourse extends Comparable<ICourse> {
     public String title();
     
     /**
-     * @return course description
-     */
-    public String description();
-    
-    /**
      * @return course instructor
      */
     public String instructorStr();
