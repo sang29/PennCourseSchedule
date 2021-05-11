@@ -8,7 +8,7 @@ public class Instructor implements IPerson {
     private String id;
     private String password;
     private String program;
-    private ArrayList<ICourse> courses; // list of courses to teach
+    private ArrayList<ICourse> currentCourses; // list of courses to teach
     private HashMap<String, ArrayList<String>> waitlist;
 
     Instructor(String firstName, String lastName, String id, String password, String program) {
@@ -17,22 +17,13 @@ public class Instructor implements IPerson {
         this.id = id;
         this.password = password;
         this.program = program;
-        this.courses = new ArrayList<ICourse>();
+        this.currentCourses = new ArrayList<ICourse>();
         this.waitlist = new HashMap<String, ArrayList<String>>();
     }
-
-    public void setCourses(ArrayList<ICourse> courses) {
-        this.courses = courses;
-    }
-
-    public void setWaitlist(HashMap<String, ArrayList<String>> waitlist) {
-        this.waitlist = waitlist;
-    }
-
-    public HashMap<String, ArrayList<String>> getWaitlist() {
-        return this.waitlist;
-    }
-
+    
+    // ------------------------------------------------------------------------------------------
+    /* IPERSON IMPLEMENTATION */
+    
     @Override
     public String getFirstName() {
         return this.firstName;
@@ -50,40 +41,20 @@ public class Instructor implements IPerson {
 
     @Override
     public void printCourses() {
-        for (ICourse c : getCourses()) {
+        for (ICourse c : getCurrentCourses()) {
             System.out.println(c.toString());
         }
     }
-
-    // returns null since instructor doesn't have data field for past courses
+    
     @Override
-    public ArrayList<String> getPastCourses() {
-        return null;
-    }
-
-    public void printWaitlist() {
-        if (this.waitlist.size() == 0) {
-            System.out.println("Your waitlist is empty");
-        } else {
-            for (Map.Entry<String, ArrayList<String>> entry : this.waitlist.entrySet()) {
-                System.out.printf("Waitlist for %s:\n", entry.getKey());
-                ArrayList<String> studentList = entry.getValue();
-                for (String s : studentList) {
-                    System.out.printf("\t %s\n", s);
-                }
-            }
-        }
-    }
-
-    @Override
-    public ArrayList<ICourse> getCourses() {
-        return this.courses;
+    public ArrayList<ICourse> getCurrentCourses() {
+        return this.currentCourses;
     }
 
     @Override
     public void addCourse(ICourse c) {
-        if (!this.courses.contains(c)) {
-            this.courses.add(c);
+        if (!this.currentCourses.contains(c)) {
+            this.currentCourses.add(c);
         } else {
             System.out.print("Requested course in already in the courses list");
         }
@@ -98,5 +69,51 @@ public class Instructor implements IPerson {
     public Boolean isInstructor() {
         return true;
     }
+    
+    // ------------------------------------------------------------------------------------------
+    /* INSTRUCTOR SPECIFIC METHODS */
+    /**
+     * Takes in the course list for the student and sets the student course list
+     * 
+     * @param courses: ArrayList<ICourse>
+     */
+    public void setCourses(ArrayList<ICourse> courses) {
+        this.currentCourses = courses;
+    }
+    
+    /**
+     * Takes in the wait list for classes that the instructor is responsible for
+     * 
+     * @param waitlist, which maps each course to a list of student id's waiting for this class
+     */
+    public void setWaitlist(HashMap<String, ArrayList<String>> waitlist) {
+        this.waitlist = waitlist;
+    }
+    
+    /**
+     * Getter for waitlist
+     * @return
+     */
+    public HashMap<String, ArrayList<String>> getWaitlist() {
+        return this.waitlist;
+    }
+    /**
+     * Prints the list of student for each class that the instructor is responsible for
+     */
+    public void printWaitlist() {
+        if (this.waitlist.size() == 0) {
+            System.out.println("Your waitlist is empty");
+        } else {
+            for (Map.Entry<String, ArrayList<String>> entry : this.waitlist.entrySet()) {
+                System.out.printf("Waitlist for %s:\n", entry.getKey());
+                ArrayList<String> studentList = entry.getValue();
+                for (String s : studentList) {
+                    System.out.printf("\t %s\n", s);
+                }
+            }
+        }
+    }
+
+   
 
 }

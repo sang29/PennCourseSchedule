@@ -61,7 +61,7 @@ public class StudentTest {
         Student s = new Student("Sang Ik", "Han", "sangik_id", "sangik_pw", "CIT");
         Course c1 = new Course("CIT", 591);
         s.addCourse(c1);
-        ArrayList<ICourse> courseList = s.getCourses();
+        ArrayList<ICourse> courseList = s.getCurrentCourses();
         assertEquals(courseList.get(0).subject(), "CIT");
     }
 

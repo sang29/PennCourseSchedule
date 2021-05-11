@@ -30,6 +30,8 @@ public class Console implements IConsole {
         String pw = s.nextLine();
 
         if (login(id, pw) == -1) {
+            // login(id, pw) == -1 means that the login failed
+            // thus, re-prompt the user for login with the error message
             promptLogin();
         }
     }
@@ -45,7 +47,7 @@ public class Console implements IConsole {
                 System.out.format("Requested student ID doesn't exist. Please try again.\n");
                 db.closeClient();
                 return -1;
-            } 
+            }
         } else {
         }
 
@@ -70,17 +72,14 @@ public class Console implements IConsole {
 
     // ------------------------------------------------------------------------------------------
     /* MENU PROMPTING */
+    // ** Prompting works differently based on whether the user is a student or
+    // instructor
     public void promptStudentMenu() {
         Student loggedinStudent = (Student) getCurrentUser();
 
         System.out.format("Please type the integer value for next action.\n");
-        System.out.format(
-                "1. View current courses\n"
-                        + "2. View past courses\n"
-                        + "3. Add a new course\n"
-                        + "4. View courses by subject\n"
-                        + "5. Request course permission\n"
-                        + "6. Logout\n");
+        System.out.format("1. View current courses\n" + "2. View past courses\n" + "3. Add a new course\n"
+                + "4. View courses by subject\n" + "5. Request course permission\n" + "6. Logout\n");
 
         Scanner s = new Scanner(System.in);
 
@@ -136,8 +135,7 @@ public class Console implements IConsole {
         Instructor loggedinInstructor = (Instructor) getCurrentUser();
 
         System.out.format("Please type the integer value for next action.\n");
-        System.out.format(
-                "1. View current courses\n2. View waitlist\n3. Approve waitlist\n4. Logout\n");
+        System.out.format("1. View current courses\n2. View waitlist\n3. Approve waitlist\n4. Logout\n");
 
         Scanner s = new Scanner(System.in);
         String selectionStr;
@@ -177,6 +175,18 @@ public class Console implements IConsole {
 
     // ------------------------------------------------------------------------------------------
     /* STUDENT SUBMETHODS */
+    /**
+     * This method will put the student id to the wait list for the instructor
+     * responsible for given class The database currently gives only instructor last
+     * name, so there could be conflicts when there are multiple instructors with
+     * the same last name This will be resolved only when the registrar provides
+     * unique identifier for each instructor
+     * 
+     * @param studentId
+     * @param subject
+     * @param number
+     * @param section
+     */
     public void sendPermRequest(String studentId, String subject, int number, int section) {
         db.openClient();
         db.sendPermRequest(studentId, subject, number, section);
@@ -184,6 +194,15 @@ public class Console implements IConsole {
         System.out.format("Your request for permission has been sent!\n");
     }
 
+    /**
+     * Add the given course to the student Note that this method is used only after
+     * the student meets all the preconditions (i.e. time conflict, prerequisites,
+     * etc.)
+     * 
+     * @param subject
+     * @param number
+     * @param section
+     */
     public void addSection(String subject, int number, int section) {
 
         if (currentUser == null) {
@@ -218,22 +237,20 @@ public class Console implements IConsole {
 
             // check if permission required
             if (db.courseNeedsPerm(subject, number)) {
-                System.out
-                        .format(
-                                "This course requires permission from the instructor."
-                                        + "Please separately send a request.\n");
+                System.out.format(
+                        "This course requires permission from the instructor." + "Please separately send a request.\n");
                 db.closeClient();
                 return;
             }
 
             // check if the student already has 5 classes
-            if (currentUser.getCourses().size() > 4) {
+            if (currentUser.getCurrentCourses().size() > 4) {
                 System.out.format("You cannot take more than 5 classes.\n");
                 db.closeClient();
                 return;
             }
 
-            for (ICourse curCourse : currentUser.getCourses()) {
+            for (ICourse curCourse : currentUser.getCurrentCourses()) {
                 // check duplicate course in the student courses
                 if (c.subject().equals(curCourse.subject()) && c.number() == curCourse.number()
                         && c.section() == curCourse.section()) {
@@ -243,8 +260,7 @@ public class Console implements IConsole {
                 }
                 // check class time conflict
                 if (c.conflictsWith(curCourse)) {
-                    System.out.format("%s has time conflicts with %s\n", c.toString(),
-                            curCourse.toString());
+                    System.out.format("%s has time conflicts with %s\n", c.toString(), curCourse.toString());
                     db.closeClient();
                     return;
                 }
@@ -252,7 +268,8 @@ public class Console implements IConsole {
 
             // check if the course was taken in the past
             String courseNo = subject + " " + Integer.toString(number);
-            if (currentUser.getPastCourses().contains(courseNo)) {
+            Student currentStudent = (Student) currentUser;
+            if (currentStudent.getPastCourses().contains(courseNo)) {
                 System.out.format("Requested course is already taken previously.\n");
                 db.closeClient();
                 return;
@@ -269,18 +286,12 @@ public class Console implements IConsole {
         }
     }
 
-    // ------------------------------------------------------------------------------------------
-    /* INSTRUCTOR SUBMETHOD */
-    public void givePermToStudent(String studentId, String subject, int number, int section) {
-        db.openClient();
-        db.pushCourseToStudent(studentId, subject, number, section);
-        // need to take the student off of the waitlist too!
-        db.closeClient();
-        System.out.format("Permission granted!\n");
-    }
-
-    // ------------------------------------------------------------------------------------------
-    /* COMMON SUBMETHOD */
+    /**
+     * Allows the student to search courses offered in given subject for curent
+     * semester
+     * 
+     * @param subject
+     */
     public void printCoursesBySubject(String subject) {
         db.openClient();
         List<ICourse> courseList = db.findCoursesBySubject(subject);
@@ -289,6 +300,25 @@ public class Console implements IConsole {
         }
         System.out.format("\n");
         db.closeClient();
+    }
+
+    // ------------------------------------------------------------------------------------------
+    /* INSTRUCTOR SUBMETHOD */
+    /**
+     * Instructor will grant permission to the corresponding student_id The class
+     * will be directly added to the student profile in the backend
+     * 
+     * @param studentId
+     * @param subject
+     * @param number
+     * @param section
+     */
+    public void givePermToStudent(String studentId, String subject, int number, int section) {
+        db.openClient();
+        db.pushCourseToStudent(studentId, subject, number, section);
+        // need to take the student off of the waitlist too!
+        db.closeClient();
+        System.out.format("Permission granted!\n");
     }
 
     // ------------------------------------------------------------------------------------------
