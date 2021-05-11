@@ -56,6 +56,8 @@ public class Database {
         mongoClient = MongoClients.create(uri);
         // Connect to the "registrar" database
         db = mongoClient.getDatabase("registrar");
+        // Cluster > Databases > Collections > Documents > Fields
+
     }
 
     /**

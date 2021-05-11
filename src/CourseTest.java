@@ -1,5 +1,8 @@
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,12 +13,22 @@ public class CourseTest {
     }
 
     @Test
-    public void test() {
+    public void testMeetingTime() {
         Course c = new Course("CIT", 594, 001);
         c.setDays("MW");
-        c.setStartTime(15, 00);
+        c.setStartTime(10, 30);
         c.setDuration(90);
         assertEquals(90, c.duration());
+        assertEquals(new LocalTime(10, 30), c.startTime());
+    }
+    
+    @Test
+    public void testMeetingDays() {
+        Course c = new Course("CIT", 594, 001);
+        c.setDays("MW");
+        assertEquals("MW", c.daysToString());
+        boolean[] days = {true, false, true, false, false};
+        assertArrayEquals(days, c.days());
     }
     
     @Test
@@ -32,5 +45,4 @@ public class CourseTest {
         
         assertTrue(c1.conflictsWith(c2));
     }
-
 }

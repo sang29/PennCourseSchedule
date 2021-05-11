@@ -11,36 +11,31 @@ public class Course implements ICourse {
     private int id;
     private int section;
     private String title;
-    private String description;
     private String instructorStr;
     private String type;
     private double units;
-    
+
     private boolean[] days;
     private LocalTime startTime;
     private Interval meetingTime;
-    
-    
+
     private int max;
     private int current;
     private Collection<IPerson> students;
-    
-    
-    
+
     public Course(String subject, int id, int section) {
         this.subject = subject;
-//        this.title = "";
         this.id = id;
         this.section = section;
         this.days = new boolean[5];
     }
-    
+
     public Course(String subject, int id) {
         this.subject = subject;
         this.id = id;
         this.days = new boolean[5];
     }
-        
+
     @Override
     public int compareTo(ICourse o) {
         int subjComp = this.subject.compareTo(o.subject());
@@ -57,13 +52,13 @@ public class Course implements ICourse {
     @Override
     public boolean equals(Object o) {
         if (o instanceof Course) {
-            return this.subject.equals(((Course)o).subject())
-                    && this.id == ((Course)o).id()
-                    && this.section == ((Course)o).section();
+            return this.subject.equals(((Course) o).subject())
+                    && this.id == ((Course) o).id()
+                    && this.section == ((Course) o).section();
         }
         return false;
     }
-    
+
     @Override
     public String subject() {
         return this.subject;
@@ -83,7 +78,7 @@ public class Course implements ICourse {
     public String title() {
         return this.title;
     }
-    
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -92,22 +87,17 @@ public class Course implements ICourse {
     public String instructorStr() {
         return this.instructorStr;
     }
-    
-//    @Override
-//    public boolean equals(Object o) {
-//        return o == this;
-//    }
-    
+
     public void setInstructorStr(String instructor) {
         this.instructorStr = instructor;
-        
+
     }
 
     @Override
     public String type() {
         return this.type;
     }
-    
+
     public void setType(String type) {
         this.type = type;
     }
@@ -116,11 +106,11 @@ public class Course implements ICourse {
     public double units() {
         return this.units;
     }
-    
+
     public void setUnits(double units) {
         this.units = units;
     }
-    
+
     @Override
     public boolean[] days() {
         boolean[] temp = new boolean[5];
@@ -129,7 +119,10 @@ public class Course implements ICourse {
         }
         return temp;
     }
-    
+
+    /**
+     * @param String representation of the days the course meets, e.g. "MW"
+     */
     public void setDays(String days) {
         for (int i = 0; i < days.length(); i++) {
             switch (days.charAt(i)) {
@@ -150,9 +143,11 @@ public class Course implements ICourse {
                     break;
             }
         }
-        
     }
-    
+
+    /**
+     * @return String representation of the days the course meets, e.g. "MW"
+     */
     public String daysToString() {
         StringBuilder sb = new StringBuilder();
         if (days[M]) sb.append('M');
@@ -162,16 +157,16 @@ public class Course implements ICourse {
         if (days[F]) sb.append('F');
         return sb.toString();
     }
-    
+
     public Interval meetingTime() {
         return this.meetingTime;
     }
-    
+
     @Override
     public LocalTime startTime() {
         return this.startTime;
     }
-    
+
     public void setStartTime(int hourOfDay, int minuteOfHour) {
         this.startTime = new LocalTime(hourOfDay, minuteOfHour);
     }
@@ -181,13 +176,14 @@ public class Course implements ICourse {
         if (this.meetingTime == null) {
             return 0;
         }
-        return (int)this.meetingTime.toDuration().getStandardMinutes();
+        return (int) this.meetingTime.toDuration().getStandardMinutes();
     }
-    
+
     public void setDuration(int duration) {
-        this.meetingTime = new Interval(new Instant(this.startTime.toDateTimeToday()), new Duration(duration * 60 * 1000));
+        this.meetingTime = new Interval(new Instant(this.startTime.toDateTimeToday()),
+                new Duration(duration * 60 * 1000));
     }
-    
+
     @Override
     public int max() {
         return this.max;
@@ -196,7 +192,7 @@ public class Course implements ICourse {
     public void setMax(int max) {
         this.max = max;
     }
-    
+
     @Override
     public int current() {
         if (students == null) {
@@ -204,7 +200,7 @@ public class Course implements ICourse {
         }
         return this.students.size();
     }
-    
+
     public void setCurrent(int current) {
         this.current = current;
     }
@@ -237,6 +233,5 @@ public class Course implements ICourse {
         // TODO Auto-generated method stub
         return null;
     }
-    
 
 }
