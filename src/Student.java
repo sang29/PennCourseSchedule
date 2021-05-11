@@ -157,8 +157,9 @@ public class Student implements IPerson{
                 } else if (bool.equals("OR") || bool.equals("or")) {
                     conj = 1;
                 } else {
+                    System.out.printf("Course prereq not in right format. Please double check with registrar\n");
+                    return true;
                     // error for boolean
-                    System.out.printf("Boolean is not in the right format at i: %d\n", i);
                 }
                 i++;
             }
@@ -171,23 +172,7 @@ public class Student implements IPerson{
     int requestPerm(int classNo) {
         return 0;
     }
-    
-    public static void main(String[] args) {
-//        Database m = new Database();
-//        m.openClient();
-//        m.printAllCourses();
-//        m.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik59x", "samplePassword!@#$");
-//        m.pushStudentToDatabase("Philipp", "Gaissert", "CIT", "philipp59x", "samplePassword!@#$");
-//        m.pushCourseToStudent("sangik59x", "CIT", 590);
-//        m.pushPastCourseToStudent("sangik59x", "CIT", 590);
-//        ArrayList<String> pastCourses = new ArrayList<String>();
-//        
-//        System.out.println(m.checkPrereq(prereqStr, pastCourses));
-//        
-//        System.out.println(m.checkPrereq(prereqStr, pastCourses));
-//        m.closeClient();
 
-    }
 
     @Override
     public String getPassword() {

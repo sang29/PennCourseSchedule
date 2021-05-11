@@ -455,7 +455,7 @@ public class Database {
         }
         return courses;
     }
-
+  
     // I think that this should be "findSectionsBySubjectAndNumber"
     // Another method would be "findCourseBySubjectAndNumber"
     public List<ICourse> findCourseBySubjectAndNumber(String subject, int number) {
@@ -542,13 +542,13 @@ public class Database {
     public void sendPermRequest(String student_id, String subject, int number, int section) {
         MongoCollection<Document> sections = db.getCollection("sections_fall2021");
         MongoCollection<Document> instructors = db.getCollection("instructors");
-
+        
         Document wait = new Document();
         wait.append("student_id", student_id)
                 .append("subject", subject)
                 .append("number", number)
                 .append("section", section);
-
+//        System.out.println("Document created for update");
         Document s = sections
                 .find(and(eq("subject", subject), eq("number", number), eq("section", section)))
                 .first();
@@ -557,12 +557,12 @@ public class Database {
             System.out.println("Requested course is not offered in current semester.");
             return;
         }
-
+ 
         String instructor = (String) s.get("instructor");
         String firstInstructor = instructor.split("/")[0]; // in case there are multiple
                                                            // instructors
 
-        instructors.updateOne(eq("lastName", firstInstructor),
+        instructors.updateOne(eq("lastName", firstInstructor.toUpperCase()),
                 new Document().append("$push", new Document("waitlist", wait)));
     }
 
@@ -607,34 +607,26 @@ public class Database {
     }
 
     public static void main(String[] args) {
-//        Database db = new Database();
-//        db.openClient();
-//        Instructor i;
-//        HashMap<ICourse, ArrayList<String>> waitlist;
-//        
-//        db.deleteStudentById("sangik_id");
-//        db.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik_id", "sangik_pw");
-// 
-//        //CIS 557
-//        db.pushInstructorToDatabase("Eric", "Fouh", "CIS", "eric_id", "eric_pw");
-//        i = db.findInstructorById("eric_id");
-//        waitlist = i.getWaitlist();
-//        
-//        db.sendPermRequest("sangik_id", "CIS", 557, 1);
-//        i = db.findInstructorById("eric_id");
-//        waitlist = i.getWaitlist();
-//        for (Map.Entry<ICourse, ArrayList<String>> entry : waitlist.entrySet()) {
-//            System.out.printf("%s\n", entry.getKey().subject());
-//            System.out.printf("%d\n", entry.getKey().id());
-//            System.out.printf("%s\n", entry.getValue().get(0));
-////            assertEquals(entry.getKey().id(), 557);
-////            assertEquals(entry.getKey().section(), 1);
-////            assertEquals(entry.getValue().get(0), "sangik_id");
-//         }
-//        
-//        db.deleteStudentById("sangik_id");
-//        db.deleteInstructorById("eric_id");
-//        db.closeClient();
+        Database m = new Database();
+        m.openClient();
+        m.deleteStudentById("sangik1_id");
+        m.deleteStudentById("sangik2_id");
+        m.deleteStudentById("philipp_id");
+        m.deleteInstructorById("eric_id");
+        
+        m.pushStudentToDatabase("Sang Ik1", "Han", "ECON", "sangik1_id", "sangik1_pw");
+        m.pushStudentToDatabase("Sang Ik2", "Han", "ECON", "sangik2_id", "sangik2_pw");
+        m.pushStudentToDatabase("Philipp", "Gaissert", "CIT", "philipp_id", "philipp_pw");
+        
+        //push prereq for ECON 104 1
+        m.pushPastCourseToStudent("sangik2_id", "ECON", 101);
+        m.pushPastCourseToStudent("sangik2_id", "ECON", 103);
+        m.pushPastCourseToStudent("sangik2_id", "MATH", 104);
+        m.pushPastCourseToStudent("sangik2_id", "MATH", 114);
+        
+        //CIS 557 requires permission from Eric Fouh
+        m.pushInstructorToDatabase("Eric", "Fouh", "CIS", "eric_id", "eric_pw");
+        m.closeClient();
 
     }
 
