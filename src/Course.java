@@ -9,7 +9,7 @@ public class Course implements ICourse {
     private int number;
     private int section;
     private String title;
-    private String instructorStr;
+    private String instructor;
     private String type;
     private double units;
 
@@ -85,12 +85,12 @@ public class Course implements ICourse {
     }
 
     @Override
-    public String instructorStr() {
-        return this.instructorStr;
+    public String instructor() {
+        return this.instructor;
     }
 
     public void setInstructorStr(String instructor) {
-        this.instructorStr = instructor;
+        this.instructor = instructor;
 
     }
 

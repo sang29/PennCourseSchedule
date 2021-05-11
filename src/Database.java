@@ -233,7 +233,7 @@ public class Database {
                     .append("number", section.number())
                     .append("section", section.section())
                     .append("type", section.type())
-                    .append("instructor", section.instructorStr())
+                    .append("instructor", section.instructor())
                     .append("days", ((Course) section).daysToString())
                     .append("startTime", start)
                     .append("duration", section.duration())

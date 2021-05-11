@@ -32,7 +32,7 @@ public interface ICourse extends Comparable<ICourse> {
     /**
      * @return course instructor
      */
-    public String instructorStr();
+    public String instructor();
     
     /**
      * @return course type, e.g. "Lecture", "Recitation"

@@ -60,7 +60,7 @@ public class DatabaseTest {
         assertEquals(501, section.section());
         assertEquals("Online Course", section.type());
         assertEquals("", section.daysToString());
-        assertEquals("Rubin", section.instructorStr());
+        assertEquals("Rubin", section.instructor());
 
         section = db.findSection("CIS", 557, 001);
         assertEquals("CIS", section.subject());
@@ -70,7 +70,7 @@ public class DatabaseTest {
         assertEquals("TR", section.daysToString());
         assertEquals(new LocalTime(13, 45), section.startTime());
         assertEquals(90, section.duration());
-        assertEquals("Fouh", section.instructorStr());
+        assertEquals("Fouh", section.instructor());
 
         sections = db.findSectionsByCourseAndType("CIS", 110, "Recitation");
         assertEquals(22, sections.size());
