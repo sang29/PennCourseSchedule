@@ -3,21 +3,27 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Console implements IConsole {
+<<<<<<< HEAD
     private IPerson p; // currentUser
     private Database db;
     private Boolean isInstructor;
+=======
+    private IPerson currentUser;
+    Database db;
+    Boolean isInstructor;
+>>>>>>> df50079402ef73bbc7dc0125826209a82ae212cb
 
     Console() {
-        p = null; // initialize p as null
+        currentUser = null; // initialize p as null
         db = new Database(); // r needs to keep track of student id/pw
     }
 
     public void setCurrentUser(IPerson user) {
-        p = user; // IPerson object from registrar directory with matching ID
+        currentUser = user; // IPerson object from registrar directory with matching ID
     };
 
     public IPerson getCurrentUser() {
-        return p;
+        return currentUser;
     };
 
     // ------------------------------------------------------------------------------------------
@@ -192,9 +198,9 @@ public class Console implements IConsole {
 
     public void addSection(String subject, int number, int section) {
 
-        if (p == null) {
+        if (currentUser == null) {
             System.out.format("Please first login.\n");
-        } else if (p.isInstructor()) {
+        } else if (currentUser.isInstructor()) {
             System.out.format("Please login as student.\n");
         } else {
 
@@ -209,7 +215,7 @@ public class Console implements IConsole {
             }
 
             // check prereq
-            if (!((Student) p).meetsPrereq(prereqStr)) {
+            if (!((Student) currentUser).meetsPrereq(prereqStr)) {
                 System.out.format("You don't meet the prereq for the course.\n");
                 db.closeClient();
                 return;
@@ -233,13 +239,13 @@ public class Console implements IConsole {
             }
 
             // check if the student already has 5 classes
-            if (p.getCourses().size() > 4) {
+            if (currentUser.getCourses().size() > 4) {
                 System.out.format("You cannot take more than 5 classes.\n");
                 db.closeClient();
                 return;
             }
 
-            for (ICourse curCourse : p.getCourses()) {
+            for (ICourse curCourse : currentUser.getCourses()) {
                 // check duplicate course in the student courses
                 if (c.subject().equals(curCourse.subject()) && c.number() == curCourse.number()
                         && c.section() == curCourse.section()) {
@@ -258,7 +264,7 @@ public class Console implements IConsole {
 
             // check if the course was taken in the past
             String courseNo = subject + " " + Integer.toString(number);
-            if (p.getPastCourses().contains(courseNo)) {
+            if (currentUser.getPastCourses().contains(courseNo)) {
                 System.out.format("Requested course is already taken previously.\n");
                 db.closeClient();
                 return;
@@ -266,10 +272,10 @@ public class Console implements IConsole {
 
             // Now meets all the conditions for adding the course
             // add course for IPerson
-            p.addCourse(c);
+            currentUser.addCourse(c);
 
             // add course to the Database
-            db.pushCourseToStudent(p.getId(), subject, number, section);
+            db.pushCourseToStudent(currentUser.getId(), subject, number, section);
             db.closeClient();
             return;
         }
