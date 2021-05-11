@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import org.bson.Document;
 
-public class Student implements IPerson{
+public class Student implements IPerson {
     private String firstName;
     private String lastName;
     private String program;
@@ -12,7 +12,7 @@ public class Student implements IPerson{
     private String password;
     private ArrayList<ICourse> courses;
     private ArrayList<String> pastCourses;
-    
+
     Student(String firstName, String lastName, String id, String password, String program) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -22,20 +22,20 @@ public class Student implements IPerson{
         this.courses = new ArrayList<ICourse>();
         this.pastCourses = new ArrayList<String>();
     }
-    
+
     public void setCourses(ArrayList<ICourse> courses) {
         this.courses = courses;
     }
-    
+
     public void setPastCourses(ArrayList<String> pastCourses) {
         this.pastCourses = pastCourses;
     }
-    
+
     @Override
     public Boolean isInstructor() {
         return false;
     };
-    
+
     @Override
     public ArrayList<ICourse> getCourses() {
         return courses;
@@ -44,16 +44,16 @@ public class Student implements IPerson{
     public ArrayList<String> getPastCourses() {
         return pastCourses;
     }
-    
+
     public void addPastCourse(String pastCourse) {
         pastCourses.add(pastCourse);
     }
-    
+
     @Override
     public String getFirstName() {
         return this.firstName;
     }
-    
+
     @Override
     public String getLastName() {
         return this.lastName;
@@ -66,20 +66,20 @@ public class Student implements IPerson{
 
     @Override
     public void printCourses() {
-        for (ICourse c: getCourses()) {
+        for (ICourse c : getCourses()) {
             System.out.println(c.toString());
         }
     }
-    
+
     public void printPastCourses() {
         for (String c : getPastCourses()) {
             System.out.printf("%s\t", c);
         }
         System.out.println();
     }
-    
+
     public boolean meetsPrereq(String prereqStr) {
-        
+
         ArrayList<String> pastCourses = getPastCourses();
         boolean curBool = true;
         int conj = -1;// initialized as -1, 0 = AND, 1 = OR
@@ -170,5 +170,5 @@ public class Student implements IPerson{
             System.out.print("Requested course in already in the courses list");
         }
     }
-    
+
 }

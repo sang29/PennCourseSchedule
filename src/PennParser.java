@@ -354,7 +354,7 @@ public class PennParser implements IPennParser {
             return false;
         }
         try {
-            double d = Double.parseDouble(str);
+            Double.parseDouble(str);
         } catch (NumberFormatException e) {
             return false;
         }
