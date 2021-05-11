@@ -77,7 +77,7 @@ public class Instructor implements IPerson {
      * 
      * @param courses: ArrayList<ICourse>
      */
-    public void setCourses(ArrayList<ICourse> courses) {
+    public void setCurrentCourses(ArrayList<ICourse> courses) {
         this.currentCourses = courses;
     }
     
