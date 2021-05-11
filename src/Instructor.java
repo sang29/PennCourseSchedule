@@ -69,9 +69,11 @@ public class Instructor implements IPerson{
         } else {
             for (Map.Entry<String, ArrayList<String>> entry : this.waitlist.entrySet()) {
                 System.out.printf("Waitlist for %s:\n", entry.getKey());
-                for (String s : entry.getValue()) {
-                    System.out.printf("\t s%\n", s);
+                ArrayList<String> studentList = entry.getValue();
+                for (String s : studentList) {
+                    System.out.printf("\t %s\n", s);
                 }
+//                System.out.printf("waitlist size: %d\n", entry.getValue().size());
             }
         }
     }

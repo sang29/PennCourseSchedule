@@ -61,8 +61,10 @@ public class Console implements IConsole {
             String subject = s.nextLine();
             System.out.println("Please type course number.");
             int number = s.nextInt();
+            s.nextLine();
             System.out.println("Please type section number.");
             int section = s.nextInt();
+            s.nextLine();
             addSection(subject, number, section);
         } else if (selection == 4) {
             System.out.println("Please type subject code of your interest.");
@@ -74,50 +76,65 @@ public class Console implements IConsole {
             String subject = s.nextLine();
             System.out.println("Please type course number.");
             int number = s.nextInt();
+            s.nextLine();
             System.out.println("Please type section number.");
             int section = s.nextInt();
-
-            db.openClient();
-            db.sendPermRequest(loggedinStudent.getId(), subject, number, section);
-            db.closeClient();
+            s.nextLine();
+            sendPermRequest(loggedinStudent.getId(), subject, number, section);
         } else {
             logout();
         }
     }
     
+    public void sendPermRequest(String student_id, String subject, int number, int section) {
+        db.openClient();
+        db.sendPermRequest(student_id, subject, number, section);
+        db.closeClient();
+        System.out.println("Just sent a permission request!");
+    }
     public void promptInstructorMenu() {
         Instructor loggedinInstructor = (Instructor) getCurrentUser();
         
         System.out.println("Please type the integer value for next action.");
         System.out.printf(
-                "1. View current courses \n2. View waitlist \n3. Approve waitlist \n");
+                "1. View current courses \n2. View waitlist \n3. Approve waitlist \n4. Logout \n");
 
         Scanner s = new Scanner(System.in);
         int selection = s.nextInt();
         s.nextLine();
 
-        if (selection < 1 || selection > 3) {
+        if (selection < 1 || selection > 4) {
             System.out.println("Your selection is out of bound. Select again");
             promptInstructorMenu();
         }
         
         if (selection == 1) {
             loggedinInstructor.printCourses();
-        } else if (selection == 1) {
+        } else if (selection == 2) {
             loggedinInstructor.printWaitlist();
-        } else {
+        } else if (selection == 3){
             System.out.println("Please type the subject for approval.");
             String subject = s.nextLine();
             System.out.println("Please type the number for approval.");
             int number = s.nextInt();
+            s.nextLine();
             System.out.println("Please type the section for approval.");
             int section = s.nextInt();
+            s.nextLine();
             System.out.println("Please type the student_id for approval.");
             String student_id = s.nextLine();
-            db.openClient();
-            db.pushCourseToStudent(student_id, subject, number, section);
-            db.closeClient();
+            givePermToStudent(student_id, subject, number, section);
+        } else {
+            logout();
         }
+    }
+    
+    public void givePermToStudent(String student_id, String subject, int number, int section) {
+        db.openClient();
+        db.pushCourseToStudent(student_id, subject, number, section);
+        //need to take the student off of the waitlist too!
+        db.closeClient();
+        System.out.println("Permission granted");
     }
 
     @Override
@@ -227,6 +244,7 @@ public class Console implements IConsole {
                 // check class time conflict
                 if (c.conflictsWith(curCourse)) {
                     System.out.println("Requested course has time conflicts with current course selection.");
+                    //Print CUSTOM MESSAGE FOR THE COURSE NAME
                     db.closeClient();
                     return;
                 }
@@ -252,7 +270,7 @@ public class Console implements IConsole {
     }
 
     public static void main(String[] args) {
-        
+        //String input for int needs to be handled
         Console c = new Console();
         c.promptLogin();
 

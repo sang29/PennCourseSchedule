@@ -540,13 +540,13 @@ public class Database {
     public void sendPermRequest(String student_id, String subject, int number, int section) {
         MongoCollection<Document> sections = db.getCollection("sections_fall2021");
         MongoCollection<Document> instructors = db.getCollection("instructors");
-
+        
         Document wait = new Document();
         wait.append("student_id", student_id)
                 .append("subject", subject)
                 .append("number", number)
                 .append("section", section);
-
+//        System.out.println("Document created for update");
         Document s = sections
                 .find(and(eq("subject", subject), eq("number", number), eq("section", section)))
                 .first();
@@ -560,7 +560,7 @@ public class Database {
         String firstInstructor = instructor.split("/")[0]; // in case there are multiple
                                                            // instructors
 
-        instructors.updateOne(eq("lastName", firstInstructor),
+        instructors.updateOne(eq("lastName", firstInstructor.toUpperCase()),
                 new Document().append("$push", new Document("waitlist", wait)));
     }
 
@@ -623,10 +623,9 @@ public class Database {
         m.pushPastCourseToStudent("sangik2_id", "MATH", 114);
         
         //CIS 557 requires permission from Eric Fouh
-        m.pushInstructorToDatabase("Eric", "Fouh", "CIS", "eric_id", "eric_password");
+        m.pushInstructorToDatabase("Eric", "Fouh", "CIS", "eric_id", "eric_pw");
         m.closeClient();
-        
- 
+
     }
 
 }
