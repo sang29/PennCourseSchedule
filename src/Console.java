@@ -6,7 +6,6 @@ public class Console implements IConsole {
 
     private IPerson currentUser; // currentUser
     private Database db;
-    private Boolean isInstructor;
 
     Console() {
         currentUser = null; // initialize p as null
@@ -46,11 +45,8 @@ public class Console implements IConsole {
                 System.out.format("Requested student ID doesn't exist. Please try again.\n");
                 db.closeClient();
                 return -1;
-            } else {
-                isInstructor = true;
-            }
+            } 
         } else {
-            isInstructor = false;
         }
 
         String dbpw = user.getPassword(); // get pw from db
