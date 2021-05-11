@@ -39,14 +39,12 @@ public class Instructor implements IPerson{
     }
     
     @Override
-    public String getLastName() {
+    public String getLastName() { 
         return this.lastName;
     }
 
-
     @Override
     public String getId() {
-        // TODO Auto-generated method stub
         return this.id;
     }
 
@@ -58,6 +56,7 @@ public class Instructor implements IPerson{
         }
     }
     
+    //returns null since instructor doesn't have data field for past courses
     @Override
     public ArrayList<String> getPastCourses() {
         return null;
@@ -73,46 +72,8 @@ public class Instructor implements IPerson{
                 for (String s : studentList) {
                     System.out.printf("\t %s\n", s);
                 }
-//                System.out.printf("waitlist size: %d\n", entry.getValue().size());
             }
         }
-    }
-    
-    //change course info -> maybe get rid of it later?
-    /**
-     * 
-     * @param courseNo
-     * @param cap - set the cap to this new number
-     * @return
-     */
-    public int changeCourseCap(int courseNo, int cap) {
-        return 0;
-    }
-    
-    void takePermRequest(Course c, IPerson student) {
-        
-    }
-    
-    /**
-     * 
-     * @return 2D matrix with courseNo and studentID for request
-     */
-    public int[][] permRequests(){
-        return null;
-    }
-    
-    //give permission to the student for given class
-    /**
-     * 
-     * @param studentId
-     * @param courseNo
-     * @return -1 upon failure and 0 upon success
-     * potential failure cases - course already full,
-     * given studentId is not on the request list
-     * courseNo doesn't belong to the instructor
-     */
-    int givePerm(int studentId, int courseNo) {
-        return 0;
     }
 
     @Override
@@ -127,15 +88,6 @@ public class Instructor implements IPerson{
         } else {
             System.out.print("Requested course in already in the courses list");
         }
-    }
-
-    @Override
-    public void dropCourse(ICourse c) {
-        if (this.courses.contains(c)) {
-            this.courses.remove(c);
-        } else {
-            System.out.print("Requested course is not in the courses list");
-        } 
     }
 
     @Override

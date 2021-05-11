@@ -415,11 +415,11 @@ public class Database {
             String subject = d.getString("subject");
             int number = d.getInteger("number");
             int section = d.getInteger("section");
-            String student_id = d.getString("student_id");
+            String studentId = d.getString("student_id");
             String c = subject + " " + Integer.toString(number) + " " + Integer.toString(section);
 
             ArrayList<String> studentList = curWaitlist.getOrDefault(c, new ArrayList<String>());
-            studentList.add(student_id);
+            studentList.add(studentId);
             curWaitlist.put(c, studentList);
         }
 

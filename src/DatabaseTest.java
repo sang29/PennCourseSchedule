@@ -99,13 +99,15 @@ public class DatabaseTest {
 
     @Test
     public void testPushCourseToStudent() {
-        int sectionCurrent;
+        String sectionSubject;
         Student s;
 
         db.deleteStudentById("sangik_id");
         db.pushStudentToDatabase("Sang Ik", "Han", "CIT", "sangik_id", "sangik_pw");
-        sectionCurrent = db.findSection("CIT", 591, 1).current();
-        assertEquals(sectionCurrent, 0); // course current starts at 0
+
+        sectionSubject = db.findSection("CIT", 591, 1).subject();
+        assertEquals(sectionSubject, "CIT"); //course current starts at 0
+
         s = db.findStudentById("sangik_id");
         assertEquals(s.getCourses().size(), 0);// no course for this student
 
@@ -116,12 +118,8 @@ public class DatabaseTest {
         ICourse firstCourse = courses.get(0);
         assertEquals(firstCourse.subject(), "CIT");
 
-        sectionCurrent = db.findSection("CIT", 591, 1).current();
-        assertEquals(sectionCurrent, 1); // course current incremented by one
-
         db.deleteCourseFromStudent("sangik_id", "CIT", 591, 1);
         db.deleteStudentById("sangik_id");
-
     }
 
     @Test
@@ -177,6 +175,17 @@ public class DatabaseTest {
         db.deleteStudentById("sangik_id");
         db.deleteStudentById("philipp_id");
         db.deleteInstructorById("eric_id");
+    }
+    
+    @Test
+    public void testGetPrereq() {
+        String prereqStr = db.getPrereq("ECON", 104);
+        assertEquals("ECON 101 AND ECON 103 AND MATH 104 AND (MATH 114 OR MATH 115)", prereqStr);
+    }
+    
+    @Test
+    public void testCourseNeedsPerm() {
+        assertTrue(db.courseNeedsPerm("CIS", 557));
     }
 
     @After

@@ -30,12 +30,6 @@ public interface IPerson {
      * @param c course object to be added to the person
      */
     void addCourse(ICourse c);
-    
-    /**
-     * 
-     * @param c course object to be dropped by the person
-     */
-    void dropCourse(ICourse c);
   
     /**
      * print out the current schedule (for both student 

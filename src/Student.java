@@ -19,6 +19,8 @@ public class Student implements IPerson{
         this.id = id;
         this.password = password;
         this.program = program;
+        this.courses = new ArrayList<ICourse>();
+        this.pastCourses = new ArrayList<String>();
     }
     
     public void setCourses(ArrayList<ICourse> courses) {
@@ -42,18 +44,11 @@ public class Student implements IPerson{
     public ArrayList<String> getPastCourses() {
         return pastCourses;
     }
-
-    
     
     public void addPastCourse(String pastCourse) {
         pastCourses.add(pastCourse);
     }
     
-//    public void requestPerm(Course c) {
-//        c.instructor().takePermRequest(c, this);
-//    }
-    
-
     @Override
     public String getFirstName() {
         return this.firstName;
@@ -63,7 +58,6 @@ public class Student implements IPerson{
     public String getLastName() {
         return this.lastName;
     }
-
 
     @Override
     public String getId() {
@@ -90,16 +84,10 @@ public class Student implements IPerson{
         boolean curBool = true;
         int conj = -1;// initialized as -1, 0 = AND, 1 = OR
 
-        // https://stackoverflow.com/questions/2118261/parse-boolean-arithmetic-including-parentheses-with-regex
-        // https://stackoverflow.com/questions/6020384/create-array-of-regex-matches/46859130
-
         if (prereqStr.length() == 0) {
             // no prereq
             return true;
         } else {
-//            String[] matches = match("prereqStr", "\\((\\w+)\\s+(and|or)\\s+(\\w)\\)|(\\w+)" );
-            // "\\((\\w+)\\s+(and|or)\\s+(\\w)\\)|(\\w+)"
-            // "\\([^\\)]+\\)"
 
             ArrayList<String> allMatches = new ArrayList<String>();
             Matcher m = Pattern.compile("\\([^\\)]+\\)|(AND|OR)|(\\w+)").matcher(prereqStr);
@@ -129,8 +117,6 @@ public class Student implements IPerson{
                     String num = allMatches.get(i);
                     String courseNo = s + " " + num;
                     localBool = pastCourses.contains(courseNo);
-//                    System.out.printf("i: %d", i);
-//                    System.out.println(localBool);
                 }
 
                 if (conj == -1) {
@@ -165,14 +151,7 @@ public class Student implements IPerson{
             }
             return curBool;
         }
-
     }
-    
-    
-    int requestPerm(int classNo) {
-        return 0;
-    }
-
 
     @Override
     public String getPassword() {
@@ -181,21 +160,15 @@ public class Student implements IPerson{
 
     @Override
     public void addCourse(ICourse c) {
-        // TODO Auto-generated method stub
-        if (!this.courses.contains(c)) {
+        if (this.courses == null) {
+            ArrayList<ICourse> cList = new ArrayList<ICourse>();
+            cList.add(c);
+            setCourses(cList);
+        } else if (!this.courses.contains(c)) {
             this.courses.add(c);
         } else {
             System.out.print("Requested course in already in the courses list");
         }
-    }
-
-    @Override
-    public void dropCourse(ICourse c) {
-        if (this.courses.contains(c)) {
-            this.courses.remove(c);
-        } else {
-            System.out.print("Requested course is not in the courses list");
-        } 
     }
     
 }
