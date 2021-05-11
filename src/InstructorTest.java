@@ -41,11 +41,11 @@ public class InstructorTest {
     }
 
     @Test
-    public void testGetCourses() {
+    public void testGetCurrentCourses() {
         Instructor i = new Instructor("Sang Ik", "Han", "sangik_id", "sangik_pw", "CIT");
         Course c1 = new Course("CIT", 591);
         i.addCourse(c1);
-        ArrayList<ICourse> courseList = i.getCourses();
+        ArrayList<ICourse> courseList = i.getCurrentCourses();
         assertEquals(courseList.get(0).subject(), "CIT");
     }
 

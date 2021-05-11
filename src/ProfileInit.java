@@ -1,6 +1,6 @@
 
 public class ProfileInit {
-    public static void main(String[] args) {
+    public static void main(String[] args) { 
         //Profile generation for demo
         Database m = new Database();
         m.openClient();

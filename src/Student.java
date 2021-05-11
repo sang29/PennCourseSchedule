@@ -10,7 +10,7 @@ public class Student implements IPerson {
     private String program;
     private String id;
     private String password;
-    private ArrayList<ICourse> courses;
+    private ArrayList<ICourse> currentCourses;
     private ArrayList<String> pastCourses;
 
     Student(String firstName, String lastName, String id, String password, String program) {
@@ -19,34 +19,20 @@ public class Student implements IPerson {
         this.id = id;
         this.password = password;
         this.program = program;
-        this.courses = new ArrayList<ICourse>();
+        this.currentCourses = new ArrayList<ICourse>();
         this.pastCourses = new ArrayList<String>();
     }
 
-    public void setCourses(ArrayList<ICourse> courses) {
-        this.courses = courses;
-    }
-
-    public void setPastCourses(ArrayList<String> pastCourses) {
-        this.pastCourses = pastCourses;
-    }
-
+    // ------------------------------------------------------------------------------------------
+    /* IPERSON IMPLEMENTATION */
     @Override
     public Boolean isInstructor() {
         return false;
-    };
+    }
 
     @Override
-    public ArrayList<ICourse> getCourses() {
-        return courses;
-    }
-
-    public ArrayList<String> getPastCourses() {
-        return pastCourses;
-    }
-
-    public void addPastCourse(String pastCourse) {
-        pastCourses.add(pastCourse);
+    public ArrayList<ICourse> getCurrentCourses() {
+        return currentCourses;
     }
 
     @Override
@@ -66,11 +52,71 @@ public class Student implements IPerson {
 
     @Override
     public void printCourses() {
-        for (ICourse c : getCourses()) {
+        for (ICourse c : getCurrentCourses()) {
             System.out.println(c.toString());
         }
     }
 
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public void addCourse(ICourse c) {
+        if (this.currentCourses == null) {
+            ArrayList<ICourse> cList = new ArrayList<ICourse>();
+            cList.add(c);
+            setCourses(cList);
+        } else if (!this.currentCourses.contains(c)) {
+            this.currentCourses.add(c);
+        } else {
+            System.out.print("Requested course in already in the courses list");
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------
+    /* STUDENT SPECIFIC METHODS */
+    /**
+     * Takes in the course list for the student and sets the student course list
+     * 
+     * @param courses: ArrayList<ICourse>
+     */
+    public void setCourses(ArrayList<ICourse> courses) {
+        this.currentCourses = courses;
+    }
+
+    /**
+     * Takes in the past course list for the student and sets the past course list
+     * Note that past courses are string and not ICourse This is because we don't
+     * have as many details about past courses from registrar
+     * 
+     * @param pastCourses ArrayList<String>
+     */
+    public void setPastCourses(ArrayList<String> pastCourses) {
+        this.pastCourses = pastCourses;
+    }
+
+    /**
+     * Getter for pastCourses
+     */
+    public ArrayList<String> getPastCourses() {
+        return pastCourses;
+    }
+
+    /**
+     * Add a course to the pastCourse list
+     * 
+     * @param pastCourse
+     */
+    public void addPastCourse(String pastCourse) {
+        pastCourses.add(pastCourse);
+    }
+
+    /**
+     * Prints out all the past courses Helps the user to check whether they meet the
+     * requirement
+     */
     public void printPastCourses() {
         for (String c : getPastCourses()) {
             System.out.printf("%s\t", c);
@@ -78,6 +124,13 @@ public class Student implements IPerson {
         System.out.println();
     }
 
+    /**
+     * Checks if the student's past courses meet the given prerequisite
+     * 
+     * @param prereqStr, This variable should come from the course information using
+     *                   Databse
+     * @return boolean of whether the student meets the give prerequisite
+     */
     public boolean meetsPrereq(String prereqStr) {
 
         ArrayList<String> pastCourses = getPastCourses();
@@ -150,24 +203,6 @@ public class Student implements IPerson {
                 i++;
             }
             return curBool;
-        }
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public void addCourse(ICourse c) {
-        if (this.courses == null) {
-            ArrayList<ICourse> cList = new ArrayList<ICourse>();
-            cList.add(c);
-            setCourses(cList);
-        } else if (!this.courses.contains(c)) {
-            this.courses.add(c);
-        } else {
-            System.out.print("Requested course in already in the courses list");
         }
     }
 

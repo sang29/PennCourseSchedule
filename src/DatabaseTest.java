@@ -110,12 +110,12 @@ public class DatabaseTest {
         assertEquals(sectionSubject, "CIT"); // course current starts at 0
 
         s = db.findStudentById("sangik_id");
-        assertEquals(s.getCourses().size(), 0);// no course for this student
+        assertEquals(s.getCurrentCourses().size(), 0);// no course for this student
 
         db.pushCourseToStudent("sangik_id", "CIT", 591, 1);
 
         s = db.findStudentById("sangik_id");
-        ArrayList<ICourse> courses = s.getCourses();
+        ArrayList<ICourse> courses = s.getCurrentCourses();
         ICourse firstCourse = courses.get(0);
         assertEquals(firstCourse.subject(), "CIT");
 

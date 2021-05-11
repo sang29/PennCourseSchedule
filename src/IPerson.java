@@ -15,13 +15,11 @@ public interface IPerson {
 
     String getPassword();
 
-    ArrayList<String> getPastCourses();
-
     /**
      * 
      * @return list of course objects under the current person
      */
-    ArrayList<ICourse> getCourses();
+    ArrayList<ICourse> getCurrentCourses();
 
     /**
      * 
