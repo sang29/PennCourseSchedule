@@ -111,8 +111,6 @@ public class PennParser implements IPennParser {
         return subjectToCoursesMap;
     }
 
-    // --------------------------------------------------------------------------------------------
-
     @Override
     public Collection<ICourse> parseSections(Map<String, String> subjects) {
         // Create a TreeSet that will hold all sections in the upcoming semester
@@ -182,10 +180,7 @@ public class PennParser implements IPennParser {
         return sections;
     }
 
-    // --------------------------------------------------------------------------------------------
-
     /**
-     * 
      * @param str          String containing section info from the UPenn time table
      * @param code         Subject code, e.g. "CIT"
      * @param courseNumber Course number, e.g. 594

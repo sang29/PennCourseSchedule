@@ -1,8 +1,14 @@
 import org.joda.time.Interval;
 import org.joda.time.LocalTime;
 
+/**
+ * An interface for a representing a UPenn course
+ * @author Philipp Gaissert & Sangik Han
+ *
+ */
 public interface ICourse extends Comparable<ICourse> {
     
+    /* For use with the days boolean array */
     public static final int M = 0;
     public static final int T = 1;
     public static final int W = 2;
@@ -10,7 +16,7 @@ public interface ICourse extends Comparable<ICourse> {
     public static final int F = 4;
     
     /**
-     * @return subject code, e.g. CIT
+     * @return subject code, e.g. "CIT"
      */
     public String subject();
     
@@ -40,7 +46,7 @@ public interface ICourse extends Comparable<ICourse> {
     public String type();
     
     /**
-     * @return course units
+     * @return course units, e.g. 1.0
      */
     public double units();
     
@@ -50,7 +56,7 @@ public interface ICourse extends Comparable<ICourse> {
     public boolean[] days();
     
     /**
-     * @return start time
+     * @return start time, represented by a LocalTime object
      */
     public LocalTime startTime(); 
     
@@ -82,11 +88,16 @@ public interface ICourse extends Comparable<ICourse> {
     public boolean isFull();
     
     /**
-     * @param c Another course
+     * @param c Another ICourse object
      * @return true if the courses have a time conflict
      */
     public boolean conflictsWith(ICourse c);
     
+    
+    /**
+     * @param o Another Object
+     * @return  true if o is an ICourse object with the same subject, number, and section
+     */
     boolean equals(Object o);
     
 }

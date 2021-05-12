@@ -129,7 +129,7 @@ public class Database {
     }
 
     // ------------------------------------------------------------------------------------------
-    /* INITIALIZING SUBJECTS, COURSES, & SECTIONS */
+    /* INITIALIZING COLLECTIONS FOR SUBJECTS, COURSES, & SECTIONS */
 
     /**
      * Parse all subject codes and names from the UPenn catalog and pushes them to the database
@@ -224,11 +224,16 @@ public class Database {
         Collection<ICourse> sections = p.parseSections(subjects);
         List<Document> docs = new LinkedList<>();
         for (ICourse section : sections) {
+            // Default start time is 00:00
             int start = 0;
+            // If a section has a specified start time, compute the minutes past 00:00 
             if (section.startTime() != null) {
                 start = (60 * section.startTime().getHourOfDay())
                         + section.startTime().getMinuteOfHour();
             }
+            // Create a new Document with the following fields:
+            // subject, number, section, type, instructor, days,
+            // startTime, duration, max, current, units
             Document doc = new Document("subject", section.subject())
                     .append("number", section.number())
                     .append("section", section.section())
@@ -254,6 +259,14 @@ public class Database {
     // ------------------------------------------------------------------------------------------
     /* STUDENTS & INSTRUCTORS */
 
+    /**
+     * Push a new student to the database
+     * @param firstName
+     * @param lastName
+     * @param program
+     * @param id
+     * @param password
+     */
     public void pushStudentToDatabase(String firstName, String lastName, String program, String id,
             String password) {
         // If a client hasn't been opened, do nothing
@@ -282,6 +295,14 @@ public class Database {
         collection.insertOne(doc);
     }
 
+    /**
+     * Push a new instructor to the database
+     * @param firstName
+     * @param lastName
+     * @param program
+     * @param id
+     * @param password
+     */
     public void pushInstructorToDatabase(String firstName, String lastName, String program,
             String id, String password) {
         // If a client hasn't been opened, do nothing
@@ -311,6 +332,13 @@ public class Database {
         collection.insertOne(doc);
     }
 
+    /**
+     * Push a course to a student in the database (equivalent to enrolling)
+     * @param id
+     * @param subject
+     * @param number
+     * @param section
+     */
     public void pushCourseToStudent(String id, String subject, int number, int section) {
         if (mongoClient == null) {
             return;
@@ -331,11 +359,16 @@ public class Database {
 
     }
 
+    /**
+     * Push a past course to a student in the database (taken in a previous semester)
+     * @param studentId
+     * @param subject Course subject, e.g. "CIT"
+     * @param number Course number, e.g. 594
+     */
     public void pushPastCourseToStudent(String studentId, String subject, int number) {
         // same syntax as pushCourseToStudent
         MongoCollection<Document> studentCollection = db.getCollection("students");
         String courseNo = subject + " " + Integer.toString(number);
-//        Document studentDoc = studentCollection.find(eq("id", student_id)).first();
 
         studentCollection.updateOne(eq("id", studentId),
                 new Document().append("$push", new Document("pastCourses", courseNo)));
@@ -345,6 +378,11 @@ public class Database {
     // ------------------------------------------------------------------------------------------
     /* QUERIES */
 
+    /**
+     * @param subject Course subject, e.g. "CIT"
+     * @param number Course number, e.g. 594
+     * @return prerequisites, as stated by the UPenn catalog
+     */
     public String getPrereq(String subject, int number) {
         MongoCollection<Document> courses = db.getCollection("courses");
         Document c = courses.find(and(eq("subject", subject), eq("number", number))).first();
@@ -352,6 +390,11 @@ public class Database {
         return prereqStr;
     }
 
+    /**
+     * Finds a student in the database with the given ID
+     * @param id
+     * @return Student object for a student with the given ID
+     */
     public Student findStudentById(String id) {
         MongoCollection<Document> studentCollection = db.getCollection("students");
         Document student = studentCollection.find(eq("id", id)).first();
@@ -382,11 +425,20 @@ public class Database {
         return s;
     }
 
+    /**
+     * Removes a student from the database
+     * @param id
+     */
     public void deleteStudentById(String id) {
         MongoCollection<Document> studentCollection = db.getCollection("students");
         studentCollection.deleteOne(eq("id", id));
     }
 
+    
+    /**
+     * @param id
+     * @return Instructor object for an instructor with the given ID
+     */
     public Instructor findInstructorById(String id) {
         MongoCollection<Document> instructors = db.getCollection("instructors");
         Document instructor = instructors.find(eq("id", id)).first();
@@ -429,11 +481,22 @@ public class Database {
         return i;
     }
 
+    /**
+     * Removes an instructor from the database
+     * @param id
+     */
     public void deleteInstructorById(String id) {
         MongoCollection<Document> instructorCollection = db.getCollection("instructors");
         instructorCollection.deleteOne(eq("id", id));
     }
 
+    /**
+     * Removes a course from a student in the database (equivalent to dropping a course)
+     * @param id
+     * @param subject
+     * @param number
+     * @param section
+     */
     public void deleteCourseFromStudent(String id, String subject, int number, int section) {
         MongoCollection<Document> studentCollection = db.getCollection("students");
         MongoCollection<Document> sectionCollection = db.getCollection("sections_fall2021");
@@ -509,6 +572,12 @@ public class Database {
         return sections;
     }
 
+    /**
+     * @param subject   Course subject, e.g. "CIT"
+     * @param number    Course number, e.g. 594
+     * @param section   Section number
+     * @return
+     */
     public Course findSection(String subject, int number, int section) {
         MongoCollection<Document> sectionsCollection = db.getCollection("sections_fall2021");
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
@@ -526,8 +595,8 @@ public class Database {
     /**
      * Creates a Course object using a document from the database
      * 
-     * @param doc
-     * @param coll
+     * @param doc   Document that holds data for a particular course
+     * @param coll  "courses" collection from the database
      * @return
      */
     private Course createCourseFromDocument(Document doc,
@@ -555,6 +624,12 @@ public class Database {
     // ------------------------------------------------------------------------------------------
     /* PERMISSION */
 
+    /**
+     * Checks if a course requires permission from an instructor
+     * @param subject
+     * @param number
+     * @return
+     */
     public boolean courseNeedsPerm(String subject, int number) {
         MongoCollection<Document> coursesCollection = db.getCollection("courses");
         Document doc = coursesCollection.find(and(eq("subject", subject), eq("number", number)))
@@ -562,6 +637,13 @@ public class Database {
         return doc.getBoolean("permission");
     }
 
+    /**
+     * Adds a waitlist request to the instructor in the database
+     * @param studentId
+     * @param subject
+     * @param number
+     * @param section
+     */
     public void sendPermRequest(String studentId, String subject, int number, int section) {
         MongoCollection<Document> sections = db.getCollection("sections_fall2021");
         MongoCollection<Document> instructors = db.getCollection("instructors");
@@ -630,10 +712,6 @@ public class Database {
             System.out.format("%4s %03d - %s\n", doc.get("subject"), doc.get("number"),
                     doc.get("title"));
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 
 }

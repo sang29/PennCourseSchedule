@@ -2,6 +2,13 @@
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * A class for students to register for courses, and for instructors to respond to permission
+ * requests
+ * 
+ * @author pgaissert
+ *
+ */
 public class Console implements IConsole {
 
     private IPerson currentUser;
@@ -78,8 +85,10 @@ public class Console implements IConsole {
         Student loggedinStudent = (Student) getCurrentUser();
 
         System.out.format("Please type the integer value for next action.\n");
-        System.out.format("1. View current courses\n" + "2. View past courses\n" + "3. Add a new course\n"
-                + "4. View courses by subject\n" + "5. Request course permission\n" + "6. Logout\n");
+        System.out.format(
+                "1. View current courses\n" + "2. View past courses\n" + "3. Add a new course\n"
+                        + "4. View courses by subject\n" + "5. Request course permission\n"
+                        + "6. Logout\n");
 
         Scanner s = new Scanner(System.in);
 
@@ -135,7 +144,8 @@ public class Console implements IConsole {
         Instructor loggedinInstructor = (Instructor) getCurrentUser();
 
         System.out.format("Please type the integer value for next action.\n");
-        System.out.format("1. View current courses\n2. View waitlist\n3. Approve waitlist\n4. Logout\n");
+        System.out.format(
+                "1. View current courses\n2. View waitlist\n3. Approve waitlist\n4. Logout\n");
 
         Scanner s = new Scanner(System.in);
         String selectionStr;
@@ -176,11 +186,10 @@ public class Console implements IConsole {
     // ------------------------------------------------------------------------------------------
     /* STUDENT SUBMETHODS */
     /**
-     * This method will put the student id to the wait list for the instructor
-     * responsible for given class The database currently gives only instructor last
-     * name, so there could be conflicts when there are multiple instructors with
-     * the same last name This will be resolved only when the registrar provides
-     * unique identifier for each instructor
+     * This method will put the student id to the wait list for the instructor responsible for given
+     * class The database currently gives only instructor last name, so there could be conflicts
+     * when there are multiple instructors with the same last name This will be resolved only when
+     * the registrar provides unique identifier for each instructor
      * 
      * @param studentId
      * @param subject
@@ -195,9 +204,8 @@ public class Console implements IConsole {
     }
 
     /**
-     * Add the given course to the student Note that this method is used only after
-     * the student meets all the preconditions (i.e. time conflict, prerequisites,
-     * etc.)
+     * Add the given course to the student Note that this method is used only after the student
+     * meets all the preconditions (i.e. time conflict, prerequisites, etc.)
      * 
      * @param subject
      * @param number
@@ -238,7 +246,8 @@ public class Console implements IConsole {
             // check if permission required
             if (db.courseNeedsPerm(subject, number)) {
                 System.out.format(
-                        "This course requires permission from the instructor." + "Please separately send a request.\n");
+                        "This course requires permission from the instructor."
+                                + "Please separately send a request.\n");
                 db.closeClient();
                 return;
             }
@@ -260,7 +269,8 @@ public class Console implements IConsole {
                 }
                 // check class time conflict
                 if (c.conflictsWith(curCourse)) {
-                    System.out.format("%s has time conflicts with %s\n", c.toString(), curCourse.toString());
+                    System.out.format("%s has time conflicts with %s\n", c.toString(),
+                            curCourse.toString());
                     db.closeClient();
                     return;
                 }
@@ -287,8 +297,7 @@ public class Console implements IConsole {
     }
 
     /**
-     * Allows the student to search courses offered in given subject for curent
-     * semester
+     * Allows the student to search courses offered in given subject for curent semester
      * 
      * @param subject
      */
@@ -305,8 +314,8 @@ public class Console implements IConsole {
     // ------------------------------------------------------------------------------------------
     /* INSTRUCTOR SUBMETHOD */
     /**
-     * Instructor will grant permission to the corresponding student_id The class
-     * will be directly added to the student profile in the backend
+     * Instructor will grant permission to the corresponding student_id The class will be directly
+     * added to the student profile in the backend
      * 
      * @param studentId
      * @param subject

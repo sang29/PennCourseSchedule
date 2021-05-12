@@ -2,6 +2,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A class that represents an instructor in the database
+ * @author Sanghik Han & Philipp Gaissert
+ *
+ */
 public class Instructor implements IPerson {
     private String firstName;
     private String lastName;
@@ -42,7 +47,7 @@ public class Instructor implements IPerson {
     @Override
     public void printCourses() {
         for (ICourse c : getCurrentCourses()) {
-            System.out.println(c.toString());
+            System.out.format(c.toString() + "\n");
         }
     }
     
@@ -56,7 +61,7 @@ public class Instructor implements IPerson {
         if (!this.currentCourses.contains(c)) {
             this.currentCourses.add(c);
         } else {
-            System.out.print("Requested course in already in the courses list");
+            System.out.format("Requested course in already in the courses list.\n");
         }
     }
 
@@ -102,13 +107,13 @@ public class Instructor implements IPerson {
      */
     public void printWaitlist() {
         if (this.waitlist.size() == 0) {
-            System.out.println("Your waitlist is empty");
+            System.out.format("Your waitlist is empty.\n");
         } else {
             for (Map.Entry<String, ArrayList<String>> entry : this.waitlist.entrySet()) {
-                System.out.printf("Waitlist for %s:\n", entry.getKey());
+                System.out.format("Waitlist for %s:\n", entry.getKey());
                 ArrayList<String> studentList = entry.getValue();
                 for (String s : studentList) {
-                    System.out.printf("\t %s\n", s);
+                    System.out.format("\t %s\n", s);
                 }
             }
         }

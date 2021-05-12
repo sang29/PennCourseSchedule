@@ -1,9 +1,12 @@
-import java.util.*;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bson.Document;
-
+/**
+ * A class that represents a student in the database
+ * @author Sanghik Han & Philipp Gaissert
+ *
+ */
 public class Student implements IPerson {
     private String firstName;
     private String lastName;
@@ -53,7 +56,7 @@ public class Student implements IPerson {
     @Override
     public void printCourses() {
         for (ICourse c : getCurrentCourses()) {
-            System.out.println(c.toString());
+            System.out.format(c.toString() + "\n");
         }
     }
 
@@ -71,7 +74,7 @@ public class Student implements IPerson {
         } else if (!this.currentCourses.contains(c)) {
             this.currentCourses.add(c);
         } else {
-            System.out.print("Requested course in already in the courses list");
+            System.out.format("Requested course in already in the courses list.\n");
         }
     }
 
@@ -87,9 +90,9 @@ public class Student implements IPerson {
     }
 
     /**
-     * Takes in the past course list for the student and sets the past course list
-     * Note that past courses are string and not ICourse This is because we don't
-     * have as many details about past courses from registrar
+     * Takes in the past course list for the student and sets the past course list Note that past
+     * courses are string and not ICourse This is because we don't have as many details about past
+     * courses from registrar
      * 
      * @param pastCourses ArrayList<String>
      */
@@ -114,21 +117,19 @@ public class Student implements IPerson {
     }
 
     /**
-     * Prints out all the past courses Helps the user to check whether they meet the
-     * requirement
+     * Prints out all the past courses Helps the user to check whether they meet the requirement
      */
     public void printPastCourses() {
         for (String c : getPastCourses()) {
-            System.out.printf("%s\t", c);
+            System.out.format("%s\t", c);
         }
-        System.out.println();
+        System.out.format("\n");
     }
 
     /**
      * Checks if the student's past courses meet the given prerequisite
      * 
-     * @param prereqStr, This variable should come from the course information using
-     *                   Databse
+     * @param prereqStr, This variable should come from the course information using Databse
      * @return boolean of whether the student meets the give prerequisite
      */
     public boolean meetsPrereq(String prereqStr) {
@@ -161,7 +162,7 @@ public class Student implements IPerson {
                         localBool = meetsPrereq(s);
                     } else {
                         // return error since it was not properly closed
-                        System.out.println("Prerequisite has unmatching parenthesis");
+                        System.out.format("Prerequisite has unmatching parenthesis.\n");
                         return false;
                     }
                 } else {
@@ -196,7 +197,9 @@ public class Student implements IPerson {
                 } else if (bool.equals("OR") || bool.equals("or")) {
                     conj = 1;
                 } else {
-                    System.out.printf("Course prereq not in right format. Please double check with registrar\n");
+                    System.out.format(
+                            "Course prereq not in right format."
+                                    + " Please double check with registrar\n");
                     return true;
                     // error for boolean
                 }

@@ -3,6 +3,12 @@ import org.joda.time.Instant;
 import org.joda.time.Interval;
 import org.joda.time.LocalTime;
 
+/**
+ * A class that represents a UPenn course in the database
+ * 
+ * @author Philipp Gaissert & Sangik Han
+ *
+ */
 public class Course implements ICourse {
 
     private String subject;
@@ -13,13 +19,20 @@ public class Course implements ICourse {
     private String type;
     private double units;
 
-    private boolean[] days;
+    private boolean[] days;  
     private LocalTime startTime;
     private Interval meetingTime;
 
     private int max;
     private int current;
 
+    /**
+     * Constructor w/ section number
+     * 
+     * @param subject Subject code, e.g. "CIT"
+     * @param number  Course number, e.g. 594
+     * @param section Section numner, e.g. 001
+     */
     public Course(String subject, int number, int section) {
         this.subject = subject;
         this.number = number;
@@ -27,6 +40,12 @@ public class Course implements ICourse {
         this.days = new boolean[5];
     }
 
+    /**
+     * Constructor w/o section number
+     * 
+     * @param subject Subject code, e.g. "CIT"
+     * @param number  Course number, e.g. 594
+     */
     public Course(String subject, int number) {
         this.subject = subject;
         this.number = number;
@@ -46,6 +65,9 @@ public class Course implements ICourse {
         return this.section - o.section();
     }
 
+    /**
+     * Checks if two Courses have the same subject, number, and section
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof Course) {
@@ -240,6 +262,9 @@ public class Course implements ICourse {
 
     @Override
     public String toString() {
+        if (this.section == 0) {
+            return String.format("%s-%03d %s", subject, number, title);
+        }
         return String.format("%s-%d-%03d %s", subject, number, section, title);
     }
 

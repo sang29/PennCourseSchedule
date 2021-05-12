@@ -1,11 +1,16 @@
 import java.util.*;
 
+/**
+ * An interface for a person in the database
+ * @author pgaissert
+ *
+ */
 public interface IPerson {
 
     /**
      * GETTERS & SETTERS
      * 
-     * @return
+     * 
      */
     String getFirstName();
 
