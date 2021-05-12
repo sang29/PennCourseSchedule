@@ -30,7 +30,8 @@ import com.mongodb.client.model.Sorts;
 
 /**
  * A class for initializing, updating, and querying a database of UPenn courses, students, and
- * instructors
+ * instructors. The initial collections for subjects, courses, and sections are pushed with the help
+ * of the PennParser class.
  * 
  * @author Philipp Gaissert & Sang Ik Han
  *
@@ -226,7 +227,7 @@ public class Database {
         for (ICourse section : sections) {
             // Default start time is 00:00
             int start = 0;
-            // If a section has a specified start time, compute the minutes past 00:00 
+            // If a section has a specified start time, compute the minutes past 00:00
             if (section.startTime() != null) {
                 start = (60 * section.startTime().getHourOfDay())
                         + section.startTime().getMinuteOfHour();
@@ -261,6 +262,7 @@ public class Database {
 
     /**
      * Push a new student to the database
+     * 
      * @param firstName
      * @param lastName
      * @param program
@@ -297,6 +299,7 @@ public class Database {
 
     /**
      * Push a new instructor to the database
+     * 
      * @param firstName
      * @param lastName
      * @param program
@@ -334,6 +337,7 @@ public class Database {
 
     /**
      * Push a course to a student in the database (equivalent to enrolling)
+     * 
      * @param id
      * @param subject
      * @param number
@@ -361,9 +365,10 @@ public class Database {
 
     /**
      * Push a past course to a student in the database (taken in a previous semester)
+     * 
      * @param studentId
-     * @param subject Course subject, e.g. "CIT"
-     * @param number Course number, e.g. 594
+     * @param subject   Course subject, e.g. "CIT"
+     * @param number    Course number, e.g. 594
      */
     public void pushPastCourseToStudent(String studentId, String subject, int number) {
         // same syntax as pushCourseToStudent
@@ -380,7 +385,7 @@ public class Database {
 
     /**
      * @param subject Course subject, e.g. "CIT"
-     * @param number Course number, e.g. 594
+     * @param number  Course number, e.g. 594
      * @return prerequisites, as stated by the UPenn catalog
      */
     public String getPrereq(String subject, int number) {
@@ -392,6 +397,7 @@ public class Database {
 
     /**
      * Finds a student in the database with the given ID
+     * 
      * @param id
      * @return Student object for a student with the given ID
      */
@@ -427,6 +433,7 @@ public class Database {
 
     /**
      * Removes a student from the database
+     * 
      * @param id
      */
     public void deleteStudentById(String id) {
@@ -434,7 +441,6 @@ public class Database {
         studentCollection.deleteOne(eq("id", id));
     }
 
-    
     /**
      * @param id
      * @return Instructor object for an instructor with the given ID
@@ -483,6 +489,7 @@ public class Database {
 
     /**
      * Removes an instructor from the database
+     * 
      * @param id
      */
     public void deleteInstructorById(String id) {
@@ -492,6 +499,7 @@ public class Database {
 
     /**
      * Removes a course from a student in the database (equivalent to dropping a course)
+     * 
      * @param id
      * @param subject
      * @param number
@@ -573,9 +581,9 @@ public class Database {
     }
 
     /**
-     * @param subject   Course subject, e.g. "CIT"
-     * @param number    Course number, e.g. 594
-     * @param section   Section number
+     * @param subject Course subject, e.g. "CIT"
+     * @param number  Course number, e.g. 594
+     * @param section Section number
      * @return
      */
     public Course findSection(String subject, int number, int section) {
@@ -595,8 +603,8 @@ public class Database {
     /**
      * Creates a Course object using a document from the database
      * 
-     * @param doc   Document that holds data for a particular course
-     * @param coll  "courses" collection from the database
+     * @param doc  Document that holds data for a particular course
+     * @param coll "courses" collection from the database
      * @return
      */
     private Course createCourseFromDocument(Document doc,
@@ -626,6 +634,7 @@ public class Database {
 
     /**
      * Checks if a course requires permission from an instructor
+     * 
      * @param subject
      * @param number
      * @return
@@ -639,6 +648,7 @@ public class Database {
 
     /**
      * Adds a waitlist request to the instructor in the database
+     * 
      * @param studentId
      * @param subject
      * @param number

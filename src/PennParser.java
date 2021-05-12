@@ -14,7 +14,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * A class for parsing subjects, courses, and sections available at UPenn
+ * A class for parsing subjects, courses, and sections available at UPenn. There is no consolidated
+ * courses database that is available to students, so we had to build our own by parsing multiple
+ * pages on the UPenn website.
  * 
  * @author Philipp Gaissert & Sang Ik Han
  *
